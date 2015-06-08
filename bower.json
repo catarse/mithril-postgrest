@@ -1,0 +1,24 @@
+{
+  "name": "mithril.postgrest",
+  "version": "1.0.0",
+  "homepage": "https://github.com/catarse/mithril.postgrest",
+  "authors": [
+    "Diogo Biazus <diogo@biazus.me>"
+  ],
+  "description": "A Mithril.js plugin to authenticate requests against PostgREST",
+  "main": "dist/mithril.postgrest.js",
+  "keywords": [
+    "mithril",
+    "postgrest",
+    "rest",
+    "request"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
