@@ -7,5 +7,15 @@
         factory(m, _, localStorage);
     }
 }(function (m, _, localStorage) {
+  var postgrest = {};
+  postgrest.init = function(apiPrefix){
+    postgrest.authenticate = function(options){
+    };
 
+    postgrest.request = function(options){
+      return m.request(_.extend(options, {url: apiPrefix + options.url}));
+    };
+  };
+
+  m.postgrest = postgrest;
 }));
