@@ -18,13 +18,13 @@ module.exports = function( grunt ) {
         },
 
         files: {
-          'dist/jquery.fixedmask.js': ['src/jquery.fixedmask.js']
+          'dist/mithril.postgrest.js': ['src/mithril.postgrest.js']
         }
       },
 
       min: {
         files: {
-          'dist/jquery.fixedmask.min.js': ['src/jquery.fixedmask.js']
+          'dist/mithril.postgrest.min.js': ['src/mithril.postgrest.js']
         }
       }
     },
@@ -35,12 +35,8 @@ module.exports = function( grunt ) {
         options: {
           specs: "spec/*[S|s]pec.js",
           vendor: [
-            "spec/lib/matchers.js",
             "spec/lib/jasmine-species/jasmine-grammar.js",
-            "spec/lib/setup.js",
-            "spec/lib/underscore.js",
-            "spec/lib/jquery-2.1.1.js",
-            "spec/lib/jquery.keymasher.js"
+            "bower_components/**/*.js"
           ]
         }
       }

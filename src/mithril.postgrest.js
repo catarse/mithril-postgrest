@@ -6,6 +6,6 @@
         // Browser globals
         factory(m, _, localStorage);
     }
-}(function (m, _) {
+}(function (m, _, localStorage) {
 
 }));
