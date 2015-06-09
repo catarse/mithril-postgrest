@@ -23,3 +23,7 @@ This will create two functions:
 
   * m.postgrest.authenticate - which should be used to request and store a token so we can make calls with authentication.
   * m.postgrest.request - which should be used for anonymous API calls.
+
+After authantication, the following function becomes available:
+
+  * m.postgrest.requestWithToken - which should be used for authenticated API calls.
