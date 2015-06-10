@@ -8,10 +8,12 @@
     }
 }(function (m, _, localStorage) {
   var postgrest = {};
+
   var xhrConfig = function(xhr){
     if(token()){
       xhr.setRequestHeader("Authorization", "Bearer " + token());
     }
+    return xhr;
   };
 
   var token = function(){
@@ -24,7 +26,8 @@
 
   postgrest.init = function(apiPrefix){
     postgrest.request = function(options){
-      return m.request(_.extend(options, {url: apiPrefix + options.url, config: xhrConfig}));
+      var config = _.isFunction(options.config) ? _.compose(options.config, xhrConfig) : xhrConfig;
+      return m.request(_.extend(options, {url: apiPrefix + options.url, config: config}));
     };
   };
 

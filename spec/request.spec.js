@@ -7,6 +7,7 @@ describe("m.postgrest.request", function(){
   };
 
   beforeEach(function(){
+    m.postgrest.reset();
     m.postgrest.init(apiPrefix);
     var then = function(callback){
       callback({token: token});
@@ -15,6 +16,18 @@ describe("m.postgrest.request", function(){
     spyOn(m, 'request').and.callFake(function(options){
       options.config(xhr);
       return {then: then};
+    });
+  });
+
+  describe("when I'm not authenticated and try to configure a custom header", function(){
+    it("should call m.request and our custom xhrConfig", function(){
+      var xhrConfig = function(xhr) {
+        xhr.setRequestHeader("Content-Type", "application/json");
+      };
+      
+      m.postgrest.request({method: "GET", url: "pages.json", config: xhrConfig});
+      expect(m.request).toHaveBeenCalledWith({method: "GET", url: apiPrefix + "pages.json", config: jasmine.any(Function)});
+      expect(xhr.setRequestHeader).toHaveBeenCalledWith("Content-Type", "application/json");
     });
   });
 
