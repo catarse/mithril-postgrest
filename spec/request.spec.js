@@ -2,13 +2,20 @@ describe("m.postgrest.request", function(){
   var apiPrefix = "http://api.foo.com/v1/";
   var token = "authentication token";
   var authentication_endpoint = "/authentication_endpoint"
+  var xhr = {
+    setRequestHeader: function(){}
+  };
 
   beforeEach(function(){
     m.postgrest.init(apiPrefix);
     var then = function(callback){
       callback({token: token});
     };
-    spyOn(m, 'request').and.returnValue({then: then});
+    spyOn(xhr, 'setRequestHeader');
+    spyOn(m, 'request').and.callFake(function(options){
+      options.config(xhr);
+      return {then: then};
+    });
   });
 
   describe("when I'm not authenticated", function(){
@@ -18,20 +25,15 @@ describe("m.postgrest.request", function(){
     });
   });
 
-  describe("when I have already called m.postgrest.authenticate()", function(){
-    var xhr = {
-      setRequestHeader: function(){}
-    };
-
+  describe("when I have already the authentication token", function(){
     beforeEach(function(){
       localStorage.setItem("postgrest.token", token);
-      m.postgrest.authenticate({method: "GET", url: authentication_endpoint});
-      spyOn(xhr, "setRequestHeader");
       m.postgrest.request({method: "GET", url: "pages.json"});
     });
 
     it("should call m.request using API prefix and authorization header", function(){
       //TODO: test config object for authorization header
+      expect(xhr.setRequestHeader).toHaveBeenCalledWith("Authorization", "Bearer " + token);
     });
   });
 });
