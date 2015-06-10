@@ -8,17 +8,20 @@
     }
 }(function (m, _, localStorage) {
   var postgrest = {};
-  function xhrConfig(xhr){
+  var xhrConfig = function(xhr){
     if(token()){
       xhr.setRequestHeader("Authorization", "Bearer " + token());
     }
-  }
+  };
 
-  function token(){
+  var token = function(){
     return localStorage.getItem("postgrest.token");
-  }
+  };
 
-  postgrest.reset = function(){};
+  postgrest.reset = function(){
+    localStorage.removeItem("postgrest.token");
+  };
+
   postgrest.init = function(apiPrefix){
     postgrest.request = function(options){
       return m.request(_.extend(options, {url: apiPrefix + options.url, config: xhrConfig}));
