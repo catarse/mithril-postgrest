@@ -12,7 +12,6 @@ describe("m.postgrest.authenticate", function(){
 
   describe("when token is not in localStorage", function(){
     beforeEach(function(){
-      localStorage.removeItem("postgrest.token");
       m.postgrest.authenticate({method: "GET", url: authentication_endpoint});
     });
 
