@@ -4,6 +4,7 @@ describe("m.postgrest.authenticate", function(){
 
   beforeEach(function(){
     m.postgrest.reset();
+    m.postgrest.init("", {method: "GET", url: authentication_endpoint});
     var then = function(callback){
       callback({token: token});
     };
@@ -12,7 +13,7 @@ describe("m.postgrest.authenticate", function(){
 
   describe("when token is not in localStorage", function(){
     beforeEach(function(){
-      m.postgrest.authenticate({method: "GET", url: authentication_endpoint});
+      m.postgrest.authenticate();
     });
 
     it("should store the token in localStorage", function(){
@@ -30,7 +31,7 @@ describe("m.postgrest.authenticate", function(){
     });
 
     it("should return a promisse with the token in the data parameter", function(){
-      var promisse = m.postgrest.authenticate({method: "GET", url: authentication_endpoint});
+      var promisse = m.postgrest.authenticate();
       promisse.then(function(data){
         expect(data.token).toEqual(token);
       });

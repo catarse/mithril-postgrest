@@ -22,7 +22,7 @@
     localStorage.removeItem("postgrest.token");
   };
 
-  postgrest.init = function(apiPrefix){
+  postgrest.init = function(apiPrefix, authenticationOptions){
     postgrest.request = function(options){
       return m.request(_.extend(options, {url: apiPrefix + options.url}));
     };
@@ -31,20 +31,21 @@
       var config = _.isFunction(options.config) ? _.compose(options.config, xhrConfig) : xhrConfig;
       return m.postgrest.request(_.extend(options, {config: config}));
     };
-  };
 
-  postgrest.authenticate = function(options){
-    var deferred = m.deferred();
-    if(token()){
-      deferred.resolve({token: token()});
-    }
-    else{
-      m.request(options).then(function(data){
-        localStorage.setItem("postgrest.token", data.token);
-        deferred.resolve({token: data.token});
-      });  
-    }
-    return deferred.promise;
+    postgrest.authenticate = function(){
+      var deferred = m.deferred();
+      if(token()){
+        deferred.resolve({token: token()});
+      }
+      else{
+        m.request(authenticationOptions).then(function(data){
+          localStorage.setItem("postgrest.token", data.token);
+          deferred.resolve({token: data.token});
+        });  
+      }
+      return deferred.promise;
+    };
+    return postgrest;
   };
 
   m.postgrest = postgrest;
