@@ -10,9 +10,7 @@
   var postgrest = {};
 
   var xhrConfig = function(xhr){
-    if(token()){
-      xhr.setRequestHeader("Authorization", "Bearer " + token());
-    }
+    xhr.setRequestHeader("Authorization", "Bearer " + token());
     return xhr;
   };
 
