@@ -16,7 +16,7 @@ you can just initialize without any argument.
 
 To use an API available at ```http://api.foo.com/v1``` you can use the code:
 ```javascript
-m.postgrest.init("http://api.foo.com/v1")
+m.postgrest.init("http://api.foo.com/v1", {method: "GET", url: "/authentication_endpoint"});
 ```
 
 This will create two functions:
@@ -24,4 +24,12 @@ This will create two functions:
   * m.postgrest.request - which should be used for anonymous API calls.
   * m.postgrest.requestWithToken - which should be used for authenticated API calls.
 
-After authentication ```m.postgrest.request``` is redefined to use the JWT in it's header.
+Both functions are just proxies for mithril's ```m.request``` and will return in the same fashion.
+
+However, the ```m.postgrest.requestWithToken``` stores the JWT for api authentication in the localStorage key "postgrest.token".
+
+To logout of the API and erase the token from the browser localStorage you should call:
+
+```javascript
+m.postgrest.reset();
+```
