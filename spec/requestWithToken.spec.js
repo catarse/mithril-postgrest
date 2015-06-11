@@ -8,46 +8,44 @@ describe("m.postgrest.requestWithToken", function(){
 
   beforeEach(function(){
     m.postgrest.reset();
-    m.postgrest.init(apiPrefix);
+    localStorage.setItem("postgrest.token", token);
+    m.postgrest.init(apiPrefix, {method: "GET", url: authentication_endpoint});
     var then = function(callback){
       callback({token: token});
     };
     spyOn(xhr, 'setRequestHeader');
+    spyOn(m.postgrest, 'authenticate').and.callThrough();
     spyOn(m, 'request').and.callFake(function(options){
-      options.config(xhr);
+      if(_.isFunction(options.config)){
+        options.config(xhr);
+      }
       return {then: then};
     });
   });
 
-  describe("when I'm not authenticated and try to configure a custom header", function(){
-    it("should call m.request and our custom xhrConfig", function(){
+  it("should call authenticate", function(){
+    m.postgrest.requestWithToken({method: "GET", url: "pages.json"});
+    expect(m.postgrest.authenticate).toHaveBeenCalled();
+  });
+
+  describe("when I try to configure a custom header", function(){
+    beforeEach(function(){
       var xhrConfig = function(xhr) {
         xhr.setRequestHeader("Content-Type", "application/json");
       };
       
       m.postgrest.requestWithToken({method: "GET", url: "pages.json", config: xhrConfig});
+    });
+
+    it("should call m.request and our custom xhrConfig", function(){
       expect(m.request).toHaveBeenCalledWith({method: "GET", url: apiPrefix + "pages.json", config: jasmine.any(Function)});
       expect(xhr.setRequestHeader).toHaveBeenCalledWith("Content-Type", "application/json");
     });
-  });
-
-  describe("when I'm not authenticated", function(){
-    it("should call m.request using API prefix", function(){
-      m.postgrest.requestWithToken({method: "GET", url: "pages.json"});
-      expect(m.request).toHaveBeenCalledWith({method: "GET", url: apiPrefix + "pages.json", config: jasmine.any(Function)});
-    });
-  });
-
-  describe("when I have already the authentication token", function(){
-    beforeEach(function(){
-      localStorage.setItem("postgrest.token", token);
-      m.postgrest.requestWithToken({method: "GET", url: "pages.json"});
-    });
 
     it("should call m.request using API prefix and authorization header", function(){
-      //TODO: test config object for authorization header
       expect(xhr.setRequestHeader).toHaveBeenCalledWith("Authorization", "Bearer " + token);
     });
   });
+
 });
 

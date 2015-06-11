@@ -28,8 +28,10 @@
     };
 
     postgrest.requestWithToken = function(options){
-      var config = _.isFunction(options.config) ? _.compose(options.config, xhrConfig) : xhrConfig;
-      return m.postgrest.request(_.extend(options, {config: config}));
+      return m.postgrest.authenticate().then(function(data){
+        var config = _.isFunction(options.config) ? _.compose(options.config, xhrConfig) : xhrConfig;
+        return m.postgrest.request(_.extend(options, {config: config}));
+      });
     };
 
     postgrest.authenticate = function(){
