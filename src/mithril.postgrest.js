@@ -26,8 +26,12 @@
 
   postgrest.init = function(apiPrefix){
     postgrest.request = function(options){
+      return m.request(_.extend(options, {url: apiPrefix + options.url}));
+    };
+
+    postgrest.requestWithToken = function(options){
       var config = _.isFunction(options.config) ? _.compose(options.config, xhrConfig) : xhrConfig;
-      return m.request(_.extend(options, {url: apiPrefix + options.url, config: config}));
+      return m.postgrest.request(_.extend(options, {config: config}));
     };
   };
 

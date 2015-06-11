@@ -1,4 +1,4 @@
-describe("m.postgrest.request", function(){
+describe("m.postgrest.requestWithToken", function(){
   var apiPrefix = "http://api.foo.com/v1/";
   var token = "authentication token";
   var authentication_endpoint = "/authentication_endpoint"
@@ -25,7 +25,7 @@ describe("m.postgrest.request", function(){
         xhr.setRequestHeader("Content-Type", "application/json");
       };
       
-      m.postgrest.request({method: "GET", url: "pages.json", config: xhrConfig});
+      m.postgrest.requestWithToken({method: "GET", url: "pages.json", config: xhrConfig});
       expect(m.request).toHaveBeenCalledWith({method: "GET", url: apiPrefix + "pages.json", config: jasmine.any(Function)});
       expect(xhr.setRequestHeader).toHaveBeenCalledWith("Content-Type", "application/json");
     });
@@ -33,7 +33,7 @@ describe("m.postgrest.request", function(){
 
   describe("when I'm not authenticated", function(){
     it("should call m.request using API prefix", function(){
-      m.postgrest.request({method: "GET", url: "pages.json"});
+      m.postgrest.requestWithToken({method: "GET", url: "pages.json"});
       expect(m.request).toHaveBeenCalledWith({method: "GET", url: apiPrefix + "pages.json", config: jasmine.any(Function)});
     });
   });
@@ -41,7 +41,7 @@ describe("m.postgrest.request", function(){
   describe("when I have already the authentication token", function(){
     beforeEach(function(){
       localStorage.setItem("postgrest.token", token);
-      m.postgrest.request({method: "GET", url: "pages.json"});
+      m.postgrest.requestWithToken({method: "GET", url: "pages.json"});
     });
 
     it("should call m.request using API prefix and authorization header", function(){
@@ -50,3 +50,4 @@ describe("m.postgrest.request", function(){
     });
   });
 });
+
