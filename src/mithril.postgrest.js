@@ -41,7 +41,7 @@
       }
       else{
         m.request(authenticationOptions).then(function(data){
-          this.token(data.token);
+          token(data.token);
           deferred.resolve({token: data.token});
         });  
       }
