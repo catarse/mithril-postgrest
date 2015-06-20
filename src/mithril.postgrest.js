@@ -1,12 +1,12 @@
 (function (factory) {
     if (typeof exports === 'object') {
         // Node/CommonJS
-        factory(require('mithril'), require('underscore'), require('node-localstorage'));
+        factory(require('mithril'), require('node-localstorage'));
     } else {
         // Browser globals
-        factory(m, _, localStorage);
+        factory(m, localStorage);
     }
-}(function (m, _, localStorage) {
+}(function (m, localStorage) {
   var postgrest = {};
 
   var xhrConfig = function(xhr){
