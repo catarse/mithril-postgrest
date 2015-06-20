@@ -8,11 +8,11 @@
     "object" == typeof exports ? factory(require("mithril"), require("underscore"), require("node-localstorage")) : factory(m, _, localStorage);
 }(function(m, _, localStorage) {
     var postgrest = {}, xhrConfig = function(xhr) {
-        return xhr.setRequestHeader("Authorization", "Bearer " + token()), xhr;
-    }, token = function() {
-        return localStorage.getItem("postgrest.token");
+        return xhr.setRequestHeader("Authorization", "Bearer " + postgrest.token()), xhr;
     };
-    postgrest.reset = function() {
+    postgrest.token = function(token) {
+        return token ? localStorage.setItem("postgrest.token", token) : localStorage.getItem("postgrest.token");
+    }, postgrest.reset = function() {
         localStorage.removeItem("postgrest.token");
     }, postgrest.init = function(apiPrefix, authenticationOptions) {
         return postgrest.request = function(options) {
@@ -28,10 +28,10 @@
             });
         }, postgrest.authenticate = function() {
             var deferred = m.deferred();
-            return token() ? deferred.resolve({
-                token: token()
+            return postgrest.token() ? deferred.resolve({
+                token: postgrest.token()
             }) : m.request(authenticationOptions).then(function(data) {
-                localStorage.setItem("postgrest.token", data.token), deferred.resolve({
+                postgrest.token(data.token), deferred.resolve({
                     token: data.token
                 });
             }), deferred.promise;

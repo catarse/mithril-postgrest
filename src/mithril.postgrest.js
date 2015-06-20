@@ -10,12 +10,12 @@
   var postgrest = {};
 
   var xhrConfig = function(xhr){
-    xhr.setRequestHeader("Authorization", "Bearer " + token());
+    xhr.setRequestHeader("Authorization", "Bearer " + postgrest.token());
     return xhr;
   };
 
-  var token = function(){
-    return localStorage.getItem("postgrest.token");
+  postgrest.token = function(token){
+    return (token) ? localStorage.setItem("postgrest.token", token) : localStorage.getItem("postgrest.token");
   };
 
   postgrest.reset = function(){
@@ -36,12 +36,12 @@
 
     postgrest.authenticate = function(){
       var deferred = m.deferred();
-      if(token()){
-        deferred.resolve({token: token()});
+      if(postgrest.token()){
+        deferred.resolve({token: postgrest.token()});
       }
       else{
         m.request(authenticationOptions).then(function(data){
-          localStorage.setItem("postgrest.token", data.token);
+          postgrest.token(data.token);
           deferred.resolve({token: data.token});
         });  
       }
