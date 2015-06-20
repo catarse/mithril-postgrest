@@ -5,12 +5,12 @@
     Version: 1.0.0
 */
 !function(factory) {
-    "object" == typeof exports ? factory(require("mithril"), require("underscore"), require("node-localstorage")) : factory(m, _, localStorage);
-}(function(m, _, localStorage) {
+    "object" == typeof exports ? factory(require("mithril"), require("node-localstorage")) : factory(m, localStorage);
+}(function(m, localStorage) {
     var postgrest = {}, xhrConfig = function(xhr) {
         return xhr.setRequestHeader("Authorization", "Bearer " + token()), xhr;
-    }, token = function() {
-        return localStorage.getItem("postgrest.token");
+    }, token = function(token) {
+        return token ? localStorage.setItem("postgrest.token", token) : localStorage.getItem("postgrest.token");
     };
     postgrest.reset = function() {
         localStorage.removeItem("postgrest.token");
@@ -31,7 +31,7 @@
             return token() ? deferred.resolve({
                 token: token()
             }) : m.request(authenticationOptions).then(function(data) {
-                localStorage.setItem("postgrest.token", data.token), deferred.resolve({
+                token(data.token), deferred.resolve({
                     token: data.token
                 });
             }), deferred.promise;
