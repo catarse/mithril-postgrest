@@ -14,8 +14,8 @@
     return xhr;
   };
 
-  var token = function(){
-    return localStorage.getItem("postgrest.token");
+  var token = function(token){
+    return (token) ? localStorage.setItem("postgrest.token", token) : localStorage.getItem("postgrest.token");
   };
 
   postgrest.reset = function(){
@@ -41,7 +41,7 @@
       }
       else{
         m.request(authenticationOptions).then(function(data){
-          localStorage.setItem("postgrest.token", data.token);
+          token(data.token);
           deferred.resolve({token: data.token});
         });  
       }
