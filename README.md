@@ -19,10 +19,11 @@ To use an API available at ```http://api.foo.com/v1``` you can use the code:
 m.postgrest.init("http://api.foo.com/v1", {method: "GET", url: "/authentication_endpoint"});
 ```
 
-This will create two functions:
+This will create three functions:
 
   * m.postgrest.request - which should be used for anonymous API calls.
   * m.postgrest.requestWithToken - which should be used for authenticated API calls.
+  * m.postgrest.model - creates an object that abstracts an API endpoint
 
 Both functions are just proxies for mithril's ```m.request``` and will return in the same fashion.
 
@@ -33,3 +34,21 @@ To logout of the API and erase the token from the browser localStorage you shoul
 ```javascript
 m.postgrest.reset();
 ```
+
+### Models
+To generate a model you should call the model function passin the name and an array with its attribute names. The name of the model should be the name of the endpoint in the PostgREST server.
+
+For example, the following code:
+```javascript
+m.postgrest.model('users', ['name', 'is_admin']);
+```
+
+will generate a model that uses the ```/users``` endpoint and has two properties, ```name``` and ```is_admin```.
+
+The model will have the following methods:
+
+ * getPage(pageNumber) - gets a page of data issueing a GET request to the endpoint.
+
+The model will have all the properties defined in it's creation plus:
+
+ * pageSize - defines the size of each page that comes in ```getPage``` call. Default is 10. 
