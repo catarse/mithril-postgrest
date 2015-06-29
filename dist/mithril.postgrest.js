@@ -9,8 +9,8 @@
 }(function(m, _, localStorage) {
     var postgrest = {}, xhrConfig = function(xhr) {
         return xhr.setRequestHeader("Authorization", "Bearer " + token()), xhr;
-    }, token = function() {
-        return localStorage.getItem("postgrest.token");
+    }, token = function(token) {
+        return token ? localStorage.setItem("postgrest.token", token) : localStorage.getItem("postgrest.token");
     };
     postgrest.reset = function() {
         localStorage.removeItem("postgrest.token");
@@ -19,6 +19,32 @@
             return m.request(_.extend(options, {
                 url: apiPrefix + options.url
             }));
+        }, postgrest.model = function(name, attributes) {
+            var constructor = function(data) {
+                data = data || {}, _.extend(this, _.reduce(attributes, function(memo, attr) {
+                    return memo[attr] = m.prop(data[attr]), memo;
+                }, {}));
+            };
+            constructor.pageSize = m.prop(10);
+            var generateXhrConfig = function(page) {
+                var toRange = function() {
+                    var from = (page - 1) * constructor.pageSize(), to = from + constructor.pageSize() - 1;
+                    return from + "-" + to;
+                };
+                return function(xhr) {
+                    xhr.setRequestHeader("Range-unit", "items"), xhr.setRequestHeader("Range", toRange());
+                };
+            }, generateGetPage = function(requestFunction) {
+                return function(page, filters) {
+                    return filters = filters || {}, requestFunction({
+                        method: "GET",
+                        url: "/" + name,
+                        config: generateXhrConfig(page)
+                    });
+                };
+            };
+            return constructor.getPageWithToken = generateGetPage(m.postgrest.requestWithToken), 
+            constructor.getPage = generateGetPage(m.postgrest.request), constructor;
         }, postgrest.requestWithToken = function(options) {
             return m.postgrest.authenticate().then(function(data) {
                 var config = _.isFunction(options.config) ? _.compose(options.config, xhrConfig) : xhrConfig;
@@ -31,7 +57,7 @@
             return token() ? deferred.resolve({
                 token: token()
             }) : m.request(authenticationOptions).then(function(data) {
-                localStorage.setItem("postgrest.token", data.token), deferred.resolve({
+                token(data.token), deferred.resolve({
                     token: data.token
                 });
             }), deferred.promise;
