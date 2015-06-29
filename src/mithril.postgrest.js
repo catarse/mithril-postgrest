@@ -41,12 +41,14 @@
             {}
           )
         );
-        this.pageSize = m.prop(10);
       }
+      constructor.pageSize = m.prop(10);
 
       var generateXhrConfig = function(page){
         var toRange = function(){
-          return (page * constructor.pageSize()) + "-" + ((page * constructor.pageSize()) + constructor.pageSize());
+          var from = (page - 1) * constructor.pageSize();
+          var to = from + constructor.pageSize() - 1;
+          return from + "-" + to;
         };
 
         return function(xhr){
@@ -55,10 +57,15 @@
         };
       }
 
-      constructor.getPage = function(filters, page){
-        filters = filters || {};
-        return m.postgrest.requestWithToken({method: "GET", url: "/" + name, config: generateXhrConfig(page)});
+      var generateGetPage = function(requestFunction){
+        return function(page, filters){
+          filters = filters || {};
+          return requestFunction({method: "GET", url: "/" + name, config: generateXhrConfig(page)});
+        };
       };
+
+      constructor.getPageWithToken = generateGetPage(m.postgrest.requestWithToken);
+      constructor.getPage = generateGetPage(m.postgrest.request);
 
       return constructor;
     };
