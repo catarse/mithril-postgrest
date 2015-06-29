@@ -36,6 +36,7 @@ module.exports = function( grunt ) {
           specs: "spec/*[S|s]pec.js",
           vendor: [
             "node_modules/jasmine-expect/dist/jasmine-matchers.js",
+            "spec/lib/matchers.js",
             "spec/lib/jasmine-species/jasmine-grammar.js",
             "bower_components/**/*.js"
           ]

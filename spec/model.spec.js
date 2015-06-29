@@ -31,6 +31,12 @@ describe("m.postgrest.model", function(){
     expect(model.getPageWithToken).toBeFunction();
   });
 
+  it("should create constructor that copies attributes defined in model function", function() {
+    var m = new model({bar: 'test', qux: 'another'});
+    expect(m).toMatchPropertiesOf({bar: 'test'});
+    expect(m).not.toMatchPropertiesOf({bar: 'test', qux: 'another'});
+  });
+
   describe("getPageWithToken", function() {
     beforeEach(function(){
       model.getPageWithToken(1);
