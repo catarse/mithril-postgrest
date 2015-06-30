@@ -14,6 +14,28 @@
     };
     postgrest.reset = function() {
         localStorage.removeItem("postgrest.token");
+    }, postgrest.filtersVM = function(attributes) {
+        var getters = _.reduce(attributes, function(memo, operator, attr) {
+            return memo[attr] = m.prop(), memo;
+        }, {
+            order: m.prop()
+        }), parameters = function() {
+            var order = function() {
+                return _.reduce(getters.order(), function(memo, direction, attr) {
+                    return memo.push(attr + "." + direction), memo;
+                }, []).join(",");
+            };
+            return _.reduce(getters, function(memo, getter, attr) {
+                if (memo.order = order(), "order" !== attr) {
+                    var operator = attributes[attr];
+                    "ilike" === operator || "like" === operator ? memo[attr] = operator + ".*" + getter() + "*" : memo[attr] = operator + "." + getter();
+                }
+                return memo;
+            }, {});
+        };
+        return _.extend({}, getters, {
+            parameters: parameters
+        });
     }, postgrest.init = function(apiPrefix, authenticationOptions) {
         return postgrest.request = function(options) {
             return m.request(_.extend(options, {
