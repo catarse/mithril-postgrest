@@ -22,6 +22,50 @@
     localStorage.removeItem("postgrest.token");
   };
 
+  postgrest.filtersVM = function(attributes){
+    var getters = _.reduce(
+      attributes, 
+      function(memo, operator, attr){ 
+        memo[attr] = m.prop(); 
+        return memo;
+      }, 
+      {order: m.prop()}
+    );
+
+    var parameters = function(){
+      var order = function(){
+        return _.reduce(
+          getters.order(), 
+          function(memo, direction, attr){ 
+            memo.push(attr + '.' + direction);
+            return memo;
+          }, 
+          []
+        ).join(",");
+      };
+
+      return _.reduce(
+        getters, 
+        function(memo, getter, attr){ 
+          memo["order"] = order(); 
+          if(attr !== "order"){
+            var operator = attributes[attr];
+            if(operator === "ilike" || operator === "like"){
+              memo[attr] = operator + '.*' + getter() + '*';
+            }
+            else{
+              memo[attr] = operator + '.' + getter(); 
+            }
+          }
+          return memo;
+        }, 
+        {}
+      );
+    };
+
+    return _.extend({}, getters, {parameters: parameters});
+  };
+
   postgrest.init = function(apiPrefix, authenticationOptions){
     postgrest.request = function(options){
       return m.request(_.extend(options, {url: apiPrefix + options.url}));
@@ -58,9 +102,8 @@
       }
 
       var generateGetPage = function(requestFunction){
-        return function(page, filters){
-          filters = filters || {};
-          return requestFunction({method: "GET", url: "/" + name, config: generateXhrConfig(page)});
+        return function(page, data){
+          return requestFunction({method: "GET", url: "/" + name, data: data, config: generateXhrConfig(page)});
         };
       };
 

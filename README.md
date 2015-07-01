@@ -6,6 +6,8 @@ What this library is supposed to do:
   * Help you authenticating in a [PostgREST](https://github.com/begriffs/postgrest) server.
   * Keep some session information in the browser localStorage.
   * Provide wrappers arround the mithril request function to use JWT.
+  * Provide a constructor for objects that will interact with PostgREST endpoints
+  * Provide some helpers to build some useful View-Model objects.
   
 ## Usage
 First we should init the library so that it will build the functions to access the API.
@@ -52,3 +54,23 @@ The model will have the following methods:
 The model will have all the properties defined in it's creation plus:
 
  * pageSize - defines the size of each page that comes in ```getPage``` call. Default is 10. 
+
+### View-Models
+There are some commom View-Model objects that can be generated automaticaly.
+One of such cases is the filters VM. It is used to bind a HTML form to a set of getter/setter functions that will be used to generate a query string.
+You can use the function
+
+ * filtersVM(attributes) - Generate a View-Model based on the attributes object (maps names to operators).
+
+As in the example:
+
+```javascript
+vm = m.postgrest.filtersVM({id: 'eq', name: 'ilike'});
+vm.id(7);
+vm.name('foo');
+vm.order({name: 'desc'});
+vm.parameters();
+```
+
+The ```vm.parameters()``` will return an object that can be fed directly to a request with filters and the order by.
+

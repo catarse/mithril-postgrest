@@ -43,7 +43,7 @@ describe("m.postgrest.model", function(){
     });
 
     it("should call m.postgrest.requestWithToken with model name", function() {
-      expect(m.postgrest.requestWithToken).toHaveBeenCalledWith({method: "GET", url: "/foo", config: jasmine.any(Function)});
+      expect(m.postgrest.requestWithToken).toHaveBeenCalledWith({method: "GET", url: "/foo", data: undefined, config: jasmine.any(Function)});
     });
   });  
 
@@ -53,7 +53,7 @@ describe("m.postgrest.model", function(){
     });
 
     it("should call m.postgrest.request with model name", function() {
-      expect(m.postgrest.request).toHaveBeenCalledWith({method: "GET", url: "/foo", config: jasmine.any(Function)});
+      expect(m.postgrest.request).toHaveBeenCalledWith({method: "GET", url: "/foo", data: undefined, config: jasmine.any(Function)});
     });
   });  
 });
