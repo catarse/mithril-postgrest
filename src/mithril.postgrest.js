@@ -102,9 +102,8 @@
       }
 
       var generateGetPage = function(requestFunction){
-        return function(page, filters){
-          filters = filters || {};
-          return requestFunction({method: "GET", url: "/" + name, config: generateXhrConfig(page)});
+        return function(page, data){
+          return requestFunction({method: "GET", url: "/" + name, data: data, config: generateXhrConfig(page)});
         };
       };
 
