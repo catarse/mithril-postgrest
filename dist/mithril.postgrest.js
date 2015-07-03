@@ -57,10 +57,11 @@
                     xhr.setRequestHeader("Range-unit", "items"), xhr.setRequestHeader("Range", toRange());
                 };
             }, generateGetPage = function(requestFunction) {
-                return function(page, filters) {
-                    return filters = filters || {}, requestFunction({
+                return function(page, data) {
+                    return requestFunction({
                         method: "GET",
                         url: "/" + name,
+                        data: data,
                         config: generateXhrConfig(page)
                     });
                 };
