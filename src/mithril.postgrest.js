@@ -26,7 +26,12 @@
     var getters = _.reduce(
       attributes, 
       function(memo, operator, attr){ 
-        memo[attr] = m.prop(); 
+        if(operator === "between"){
+          memo[attr] = {lte: m.prop(''), gte: m.prop('')}; 
+        }
+        else{
+          memo[attr] = m.prop(''); 
+        }
         return memo;
       }, 
       {order: m.prop()}
@@ -34,7 +39,7 @@
 
     var parameters = function(){
       var order = function(){
-        return _.reduce(
+        return getters.order() && _.reduce(
           getters.order(), 
           function(memo, direction, attr){ 
             memo.push(attr + '.' + direction);
@@ -47,11 +52,26 @@
       return _.reduce(
         getters, 
         function(memo, getter, attr){ 
-          memo["order"] = order(); 
+          if(order()){
+            memo["order"] = order(); 
+          }
           if(attr !== "order"){
             var operator = attributes[attr];
+
+            if(_.isFunction(getter) && !getter()){ return memo; }
+
             if(operator === "ilike" || operator === "like"){
               memo[attr] = operator + '.*' + getter() + '*';
+            }
+            else if(operator === "between"){
+              if(!getter['lte']() && !getter['gte']()){ return memo; }
+              memo[attr] = [];
+              if(getter['gte']()){
+                memo[attr].push('gte.' + getter['gte']());
+              }
+              if(getter['lte']()){
+                memo[attr].push('lte.' + getter['lte']());
+              }
             }
             else{
               memo[attr] = operator + '.' + getter(); 

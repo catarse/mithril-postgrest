@@ -16,19 +16,26 @@
         localStorage.removeItem("postgrest.token");
     }, postgrest.filtersVM = function(attributes) {
         var getters = _.reduce(attributes, function(memo, operator, attr) {
-            return memo[attr] = m.prop(), memo;
+            return "between" === operator ? memo[attr] = {
+                lte: m.prop(""),
+                gte: m.prop("")
+            } : memo[attr] = m.prop(""), memo;
         }, {
             order: m.prop()
         }), parameters = function() {
             var order = function() {
-                return _.reduce(getters.order(), function(memo, direction, attr) {
+                return getters.order() && _.reduce(getters.order(), function(memo, direction, attr) {
                     return memo.push(attr + "." + direction), memo;
                 }, []).join(",");
             };
             return _.reduce(getters, function(memo, getter, attr) {
-                if (memo.order = order(), "order" !== attr) {
+                if (order() && (memo.order = order()), "order" !== attr) {
                     var operator = attributes[attr];
-                    "ilike" === operator || "like" === operator ? memo[attr] = operator + ".*" + getter() + "*" : memo[attr] = operator + "." + getter();
+                    if (_.isFunction(getter) && !getter()) return memo;
+                    if ("ilike" === operator || "like" === operator) memo[attr] = operator + ".*" + getter() + "*"; else if ("between" === operator) {
+                        if (!getter.lte() && !getter.gte()) return memo;
+                        memo[attr] = [], getter.gte() && memo[attr].push("gte." + getter.gte()), getter.lte() && memo[attr].push("lte." + getter.lte());
+                    } else memo[attr] = operator + "." + getter();
                 }
                 return memo;
             }, {});
