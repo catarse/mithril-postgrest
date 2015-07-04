@@ -37,7 +37,7 @@ describe("m.postgrest.model", function(){
     expect(m).not.toMatchPropertiesOf({bar: 'test', qux: 'another'});
   });
 
-  describe("getPageWithToken", function() {
+  describe("#getPageWithToken", function() {
     beforeEach(function(){
       model.getPageWithToken(1);
     });
@@ -47,7 +47,7 @@ describe("m.postgrest.model", function(){
     });
   });  
 
-  describe("getPage", function() {
+  describe("#getPage", function() {
     beforeEach(function(){
       model.getPage(1);
     });
