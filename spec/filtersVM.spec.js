@@ -1,4 +1,4 @@
-describe("m.postgrest.filtersVm", function(){
+describe("m.postgrest.filtersVM", function(){
   var vm = null;
 
   beforeEach(function(){
