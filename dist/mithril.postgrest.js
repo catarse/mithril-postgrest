@@ -14,6 +14,28 @@
     };
     postgrest.reset = function() {
         localStorage.removeItem("postgrest.token");
+    }, postgrest.paginationVM = function(pageRequest, order) {
+        var collection = m.prop([]), defaultOrder = order || "id.desc", filters = m.prop({
+            order: defaultOrder
+        }), isLoading = m.prop(!1), page = m.prop(1), fetch = function() {
+            var d = m.deferred();
+            return isLoading(!0), m.redraw(), m.startComputation(), pageRequest(page(), filters()).then(function(data) {
+                collection(_.union(collection(), data)), isLoading(!1), d.resolve(collection()), 
+                m.endComputation();
+            }), d.promise;
+        }, filter = function(parameters) {
+            return filters(_.extend({
+                order: defaultOrder
+            }, parameters)), collection([]), page(1), fetch();
+        }, nextPage = function() {
+            return page(page() + 1), fetch();
+        };
+        return {
+            collection: collection,
+            filter: filter,
+            isLoading: isLoading,
+            nextPage: nextPage
+        };
     }, postgrest.filtersVM = function(attributes) {
         var getters = _.reduce(attributes, function(memo, operator, attr) {
             return "between" === operator ? memo[attr] = {

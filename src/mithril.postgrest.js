@@ -22,6 +22,47 @@
     localStorage.removeItem("postgrest.token");
   };
 
+  postgrest.paginationVM = function(pageRequest, order){
+    var collection = m.prop([]),
+        defaultOrder = order || "id.desc",
+        filters = m.prop({order: defaultOrder}),
+        isLoading = m.prop(false),
+        page = m.prop(1);
+
+    var fetch = function(){
+      var d = m.deferred();
+      isLoading(true);
+      m.redraw();
+      m.startComputation();
+      pageRequest(page(), filters()).then(function(data){
+        collection(_.union(collection(), data));
+        isLoading(false);
+        d.resolve(collection());
+        m.endComputation();
+      });
+      return d.promise;
+    };
+
+    var filter = function(parameters){
+      filters(_.extend({order: defaultOrder}, parameters));
+      collection([]);
+      page(1);
+      return fetch();
+    };
+
+    var nextPage = function(){
+      page(page()+1);
+      return fetch();
+    };
+
+    return {
+      collection: collection,
+      filter: filter,
+      isLoading: isLoading,
+      nextPage: nextPage
+    };
+  };
+
   postgrest.filtersVM = function(attributes){
     var getters = _.reduce(
       attributes, 
