@@ -49,11 +49,11 @@ describe("m.postgrest.model", function(){
 
   describe("#getPage", function() {
     beforeEach(function(){
-      model.getPage(1);
+      model.getPage(1, {filter: 1}, {extra_options: 2});
     });
 
     it("should call m.postgrest.request with model name", function() {
-      expect(m.postgrest.request).toHaveBeenCalledWith({method: "GET", url: "/foo", data: undefined, config: jasmine.any(Function)});
+      expect(m.postgrest.request).toHaveBeenCalledWith({method: "GET", url: "/foo", data: {filter: 1}, config: jasmine.any(Function), extra_options: 2});
     });
   });  
 });

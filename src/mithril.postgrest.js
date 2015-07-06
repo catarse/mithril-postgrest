@@ -27,14 +27,23 @@
         defaultOrder = order || "id.desc",
         filters = m.prop({order: defaultOrder}),
         isLoading = m.prop(false),
-        page = m.prop(1);
+        page = m.prop(1),
+        total = m.prop();
 
     var fetch = function(){
       var d = m.deferred();
+      var getTotal = function(xhr, xhrOptions) {
+        var rangeHeader = xhr.getResponseHeader("Content-Range")
+        if(_.isString(rangeHeader) && rangeHeader.match(/(\d*)-(\d*)\/(\d*)/)){
+          var range = rangeHeader.match(/(\d+)-(\d+)\/(\d+)/);
+          total(parseInt(range[3]));
+        }
+        return xhr.responseText;
+      };
       isLoading(true);
       m.redraw();
       m.startComputation();
-      pageRequest(page(), filters()).then(function(data){
+      pageRequest(page(), filters(), {extract: getTotal}).then(function(data){
         collection(_.union(collection(), data));
         isLoading(false);
         d.resolve(collection());
@@ -59,7 +68,8 @@
       collection: collection,
       filter: filter,
       isLoading: isLoading,
-      nextPage: nextPage
+      nextPage: nextPage,
+      total: total
     };
   };
 
@@ -163,8 +173,8 @@
       }
 
       var generateGetPage = function(requestFunction){
-        return function(page, data){
-          return requestFunction({method: "GET", url: "/" + name, data: data, config: generateXhrConfig(page)});
+        return function(page, data, options){
+          return requestFunction(_.extend({method: "GET", url: "/" + name, data: data, config: generateXhrConfig(page)}, options));
         };
       };
 

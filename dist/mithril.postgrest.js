@@ -17,9 +17,18 @@
     }, postgrest.paginationVM = function(pageRequest, order) {
         var collection = m.prop([]), defaultOrder = order || "id.desc", filters = m.prop({
             order: defaultOrder
-        }), isLoading = m.prop(!1), page = m.prop(1), fetch = function() {
-            var d = m.deferred();
-            return isLoading(!0), m.redraw(), m.startComputation(), pageRequest(page(), filters()).then(function(data) {
+        }), isLoading = m.prop(!1), page = m.prop(1), total = m.prop(), fetch = function() {
+            var d = m.deferred(), getTotal = function(xhr, xhrOptions) {
+                var rangeHeader = xhr.getResponseHeader("Content-Range");
+                if (_.isString(rangeHeader) && rangeHeader.match(/(\d*)-(\d*)\/(\d*)/)) {
+                    var range = rangeHeader.match(/(\d+)-(\d+)\/(\d+)/);
+                    total(parseInt(range[3]));
+                }
+                return xhr.responseText;
+            };
+            return isLoading(!0), m.redraw(), m.startComputation(), pageRequest(page(), filters(), {
+                extract: getTotal
+            }).then(function(data) {
                 collection(_.union(collection(), data)), isLoading(!1), d.resolve(collection()), 
                 m.endComputation();
             }), d.promise;
@@ -34,7 +43,8 @@
             collection: collection,
             filter: filter,
             isLoading: isLoading,
-            nextPage: nextPage
+            nextPage: nextPage,
+            total: total
         };
     }, postgrest.filtersVM = function(attributes) {
         var getters = _.reduce(attributes, function(memo, operator, attr) {
@@ -86,13 +96,13 @@
                     xhr.setRequestHeader("Range-unit", "items"), xhr.setRequestHeader("Range", toRange());
                 };
             }, generateGetPage = function(requestFunction) {
-                return function(page, data) {
-                    return requestFunction({
+                return function(page, data, options) {
+                    return requestFunction(_.extend({
                         method: "GET",
                         url: "/" + name,
                         data: data,
                         config: generateXhrConfig(page)
-                    });
+                    }, options));
                 };
             };
             return constructor.getPageWithToken = generateGetPage(m.postgrest.requestWithToken), 
