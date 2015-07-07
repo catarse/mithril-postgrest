@@ -34,9 +34,8 @@
       var d = m.deferred();
       var getTotal = function(xhr, xhrOptions) {
         var rangeHeader = xhr.getResponseHeader("Content-Range")
-        if(_.isString(rangeHeader) && rangeHeader.match(/(\d*)-(\d*)\/(\d*)/)){
-          var range = rangeHeader.match(/(\d+)-(\d+)\/(\d+)/);
-          total(parseInt(range[3]));
+        if(_.isString(rangeHeader) && rangeHeader.split("/").length > 1){
+          total(parseInt(rangeHeader.split("/")[1]));
         }
         return xhr.responseText;
       };

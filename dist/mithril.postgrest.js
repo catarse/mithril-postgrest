@@ -20,11 +20,8 @@
         }), isLoading = m.prop(!1), page = m.prop(1), total = m.prop(), fetch = function() {
             var d = m.deferred(), getTotal = function(xhr, xhrOptions) {
                 var rangeHeader = xhr.getResponseHeader("Content-Range");
-                if (_.isString(rangeHeader) && rangeHeader.match(/(\d*)-(\d*)\/(\d*)/)) {
-                    var range = rangeHeader.match(/(\d+)-(\d+)\/(\d+)/);
-                    total(parseInt(range[3]));
-                }
-                return xhr.responseText;
+                return _.isString(rangeHeader) && rangeHeader.split("/").length > 1 && total(parseInt(rangeHeader.split("/")[1])), 
+                xhr.responseText;
             };
             return isLoading(!0), m.redraw(), m.startComputation(), pageRequest(page(), filters(), {
                 extract: getTotal
