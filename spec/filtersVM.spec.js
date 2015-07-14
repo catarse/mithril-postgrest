@@ -23,7 +23,7 @@ describe("m.postgrest.filtersVM", function(){
     vm.name('foo');
     vm.value['gte'](1);
     vm.value['lte'](2);
-    vm.full_text('foo  bar qux');
+    vm.full_text(' foo  bar qux ');
     vm.order({name: 'asc', id: 'desc'});
     expect(vm.parameters()).toEqual({id: 'eq.7', name: 'ilike.*foo*', order: 'name.asc,id.desc', value: ['gte.1', 'lte.2'], full_text: '@@.foo&bar&qux'})
   });

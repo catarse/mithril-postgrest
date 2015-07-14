@@ -114,7 +114,7 @@
               memo[attr] = operator + '.*' + getter() + '*';
             }
             else if(operator === "@@"){
-              memo[attr] = operator + '.' + getter().replace(/\s+/g, '&');
+              memo[attr] = operator + '.' + getter().trim().replace(/\s+/g, '&');
             }
             else if(operator === "between"){
               if(!getter['lte']() && !getter['gte']()){ return memo; }
