@@ -42,12 +42,18 @@
       isLoading(true);
       m.redraw();
       m.startComputation();
-      return pageRequest(page(), filters(), {extract: getTotal}).then(function(data){
+      pageRequest(page(), filters(), {extract: getTotal}).then(function(data){
         collection(_.union(collection(), data));
         isLoading(false);
         d.resolve(collection());
         m.endComputation();
+      }, function(){
+        isLoading(false);
+        total(0);
+        m.endComputation();
+        d.reject(arguments);
       });
+      return d.promise;
     };
 
     var filter = function(parameters){
@@ -154,6 +160,8 @@
   };
 
   postgrest.init = function(apiPrefix, authenticationOptions){
+    postgrest.onAuthFailure = m.prop(function(){});
+
     postgrest.request = function(options){
       return m.request(_.extend(options, {url: apiPrefix + options.url}));
     };
@@ -213,10 +221,9 @@
         deferred.resolve({token: token()});
       }
       else{
-        m.request(authenticationOptions).then(function(data){
+        return m.request(authenticationOptions).then(function(data){
           token(data.token);
-          deferred.resolve({token: data.token});
-        });  
+        }, postgrest.onAuthFailure());  
       }
       return deferred.promise;
     };

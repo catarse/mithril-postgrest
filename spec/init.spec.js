@@ -10,4 +10,8 @@ describe("m.postgrest.init & m.postgrest.request", function(){
     m.postgrest.request({method: "GET", url: "pages.json"});
     expect(m.request).toHaveBeenCalledWith({method: "GET", url: apiPrefix + "pages.json"});
   });
+
+  it("should define onAuthFailure callback", function() {
+    expect(m.postgrest.onAuthFailure).toBeFunction();
+  });
 });
