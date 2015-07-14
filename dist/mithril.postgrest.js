@@ -19,9 +19,12 @@
             order: defaultOrder
         }), isLoading = m.prop(!1), page = m.prop(1), total = m.prop(), fetch = function() {
             var d = m.deferred(), getTotal = function(xhr, xhrOptions) {
-                var rangeHeader = xhr.getResponseHeader("Content-Range");
-                return _.isString(rangeHeader) && rangeHeader.split("/").length > 1 && total(parseInt(rangeHeader.split("/")[1])), 
-                xhr.responseText;
+                if (xhr && 0 !== xhr.status) {
+                    var rangeHeader = xhr.getResponseHeader("Content-Range");
+                    return _.isString(rangeHeader) && rangeHeader.split("/").length > 1 && total(parseInt(rangeHeader.split("/")[1])), 
+                    xhr.responseText;
+                }
+                return "[]";
             };
             return isLoading(!0), m.redraw(), m.startComputation(), pageRequest(page(), filters(), {
                 extract: getTotal

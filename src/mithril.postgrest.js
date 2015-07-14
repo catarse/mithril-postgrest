@@ -33,11 +33,16 @@
     var fetch = function(){
       var d = m.deferred();
       var getTotal = function(xhr, xhrOptions) {
-        var rangeHeader = xhr.getResponseHeader("Content-Range")
-        if(_.isString(rangeHeader) && rangeHeader.split("/").length > 1){
-          total(parseInt(rangeHeader.split("/")[1]));
+        if(xhr && xhr.status !== 0){
+          var rangeHeader = xhr.getResponseHeader("Content-Range")
+          if(_.isString(rangeHeader) && rangeHeader.split("/").length > 1){
+            total(parseInt(rangeHeader.split("/")[1]));
+          }
+          return xhr.responseText;
         }
-        return xhr.responseText;
+        else{
+          return '[]';
+        }
       };
       isLoading(true);
       m.redraw();
