@@ -42,13 +42,12 @@
       isLoading(true);
       m.redraw();
       m.startComputation();
-      pageRequest(page(), filters(), {extract: getTotal}).then(function(data){
+      return pageRequest(page(), filters(), {extract: getTotal}).then(function(data){
         collection(_.union(collection(), data));
         isLoading(false);
         d.resolve(collection());
         m.endComputation();
       });
-      return d.promise;
     };
 
     var filter = function(parameters){

@@ -28,7 +28,7 @@
             }).then(function(data) {
                 collection(_.union(collection(), data)), isLoading(!1), d.resolve(collection()), 
                 m.endComputation();
-            }), d.promise;
+            });
         }, filter = function(parameters) {
             return filters(_.extend({
                 order: defaultOrder
