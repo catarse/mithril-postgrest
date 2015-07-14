@@ -44,11 +44,16 @@
             total: total
         };
     }, postgrest.filtersVM = function(attributes) {
-        var getters = _.reduce(attributes, function(memo, operator, attr) {
+        var filter = function() {
+            var prop = m.prop("");
+            return prop.toFilter = function() {
+                return this();
+            }, prop;
+        }, getters = _.reduce(attributes, function(memo, operator, attr) {
             return "between" === operator ? memo[attr] = {
-                lte: m.prop(""),
-                gte: m.prop("")
-            } : memo[attr] = m.prop(""), memo;
+                lte: filter(),
+                gte: filter()
+            } : memo[attr] = filter(), memo;
         }, {
             order: m.prop()
         }), parameters = function() {
@@ -61,10 +66,11 @@
                 if (order() && (memo.order = order()), "order" !== attr) {
                     var operator = attributes[attr];
                     if (_.isFunction(getter) && !getter()) return memo;
-                    if ("ilike" === operator || "like" === operator) memo[attr] = operator + ".*" + getter() + "*"; else if ("@@" === operator) memo[attr] = operator + "." + getter().trim().replace(/\s+/g, "&"); else if ("between" === operator) {
-                        if (!getter.lte() && !getter.gte()) return memo;
-                        memo[attr] = [], getter.gte() && memo[attr].push("gte." + getter.gte()), getter.lte() && memo[attr].push("lte." + getter.lte());
-                    } else memo[attr] = operator + "." + getter();
+                    if ("ilike" === operator || "like" === operator) memo[attr] = operator + ".*" + getter.toFilter() + "*"; else if ("@@" === operator) memo[attr] = operator + "." + getter.toFilter().trim().replace(/\s+/g, "&"); else if ("between" === operator) {
+                        if (!getter.lte.toFilter() && !getter.gte.toFilter()) return memo;
+                        memo[attr] = [], getter.gte() && memo[attr].push("gte." + getter.gte.toFilter()), 
+                        getter.lte() && memo[attr].push("lte." + getter.lte.toFilter());
+                    } else memo[attr] = operator + "." + getter.toFilter();
                 }
                 return memo;
             }, {});

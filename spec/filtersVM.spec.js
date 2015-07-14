@@ -28,6 +28,14 @@ describe("m.postgrest.filtersVM", function(){
     expect(vm.parameters()).toEqual({id: 'eq.7', name: 'ilike.*foo*', order: 'name.asc,id.desc', value: ['gte.1', 'lte.2'], full_text: '@@.foo&bar&qux'})
   });
 
+  it("should use custom .toFilter to get value from filter getters", function() {
+    vm.name('foo');
+    vm.name.toFilter = function(){
+      return this().replace(/oo/, 'u');
+    };
+    expect(vm.parameters()).toEqual({name: 'ilike.*fu*'});
+  });
+  
   it("the parameters function should skip undefined values", function() {
     vm.id(undefined);
     vm.name(undefined);

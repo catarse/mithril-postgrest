@@ -73,14 +73,24 @@
   };
 
   postgrest.filtersVM = function(attributes){
+    var filter = function(){
+      var prop = m.prop('');
+      // Just so we can have a default to_filter and avoid if _.isFunction calls
+      prop.toFilter = function(){ return this(); }; 
+      return prop;
+    };
+
     var getters = _.reduce(
       attributes, 
       function(memo, operator, attr){ 
+        // The operator between is implemented with two properties, one for greater than value and another for lesser than value.
+        // Both properties are sent in the queurystring with the same name, 
+        // that's why we need the special case here, so we can use a simple map as argument to filtersVM.
         if(operator === "between"){
-          memo[attr] = {lte: m.prop(''), gte: m.prop('')}; 
+          memo[attr] = {lte: filter(), gte: filter()}; 
         }
         else{
-          memo[attr] = m.prop(''); 
+          memo[attr] = filter(); 
         }
         return memo;
       }, 
@@ -88,6 +98,8 @@
     );
 
     var parameters = function(){
+      // The order parameters have a special syntax (just like an order by SQL clause)
+      // https://github.com/begriffs/postgrest/wiki/Routing#filtering-and-ordering
       var order = function(){
         return getters.order() && _.reduce(
           getters.order(), 
@@ -110,24 +122,27 @@
 
             if(_.isFunction(getter) && !getter()){ return memo; }
 
+            // Bellow we use different formatting rules for the value depending on the operator
+            // These rules are used regardless of the toFilter function, 
+            // so the user can use a custom toFilter without having to worry with basic filter syntax
             if(operator === "ilike" || operator === "like"){
-              memo[attr] = operator + '.*' + getter() + '*';
+              memo[attr] = operator + '.*' + getter.toFilter() + '*';
             }
             else if(operator === "@@"){
-              memo[attr] = operator + '.' + getter().trim().replace(/\s+/g, '&');
+              memo[attr] = operator + '.' + getter.toFilter().trim().replace(/\s+/g, '&');
             }
             else if(operator === "between"){
-              if(!getter['lte']() && !getter['gte']()){ return memo; }
+              if(!getter['lte'].toFilter() && !getter['gte'].toFilter()){ return memo; }
               memo[attr] = [];
               if(getter['gte']()){
-                memo[attr].push('gte.' + getter['gte']());
+                memo[attr].push('gte.' + getter['gte'].toFilter());
               }
               if(getter['lte']()){
-                memo[attr].push('lte.' + getter['lte']());
+                memo[attr].push('lte.' + getter['lte'].toFilter());
               }
             }
             else{
-              memo[attr] = operator + '.' + getter(); 
+              memo[attr] = operator + '.' + getter.toFilter(); 
             }
           }
           return memo;
