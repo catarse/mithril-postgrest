@@ -2,7 +2,7 @@ describe("m.postgrest.filtersVM", function(){
   var vm = null;
 
   beforeEach(function(){
-    vm = m.postgrest.filtersVM({id: 'eq', name: 'ilike', value: 'between'});
+    vm = m.postgrest.filtersVM({id: 'eq', name: 'ilike', value: 'between', full_text: '@@'});
   });
 
   it("should have a getter for each attribute plus one for order", function() {
@@ -10,6 +10,7 @@ describe("m.postgrest.filtersVM", function(){
     expect(vm.name).toBeFunction();
     expect(vm.value['lte']).toBeFunction();
     expect(vm.value['gte']).toBeFunction();
+    expect(vm.full_text).toBeFunction();
     expect(vm.order).toBeFunction();
   });
 
@@ -22,8 +23,9 @@ describe("m.postgrest.filtersVM", function(){
     vm.name('foo');
     vm.value['gte'](1);
     vm.value['lte'](2);
+    vm.full_text('foo  bar qux');
     vm.order({name: 'asc', id: 'desc'});
-    expect(vm.parameters()).toEqual({id: 'eq.7', name: 'ilike.*foo*', order: 'name.asc,id.desc', value: ['gte.1', 'lte.2']})
+    expect(vm.parameters()).toEqual({id: 'eq.7', name: 'ilike.*foo*', order: 'name.asc,id.desc', value: ['gte.1', 'lte.2'], full_text: '@@.foo&bar&qux'})
   });
 
   it("the parameters function should skip undefined values", function() {

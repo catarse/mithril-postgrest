@@ -113,6 +113,9 @@
             if(operator === "ilike" || operator === "like"){
               memo[attr] = operator + '.*' + getter() + '*';
             }
+            else if(operator === "@@"){
+              memo[attr] = operator + '.' + getter().replace(/\s+/g, '&');
+            }
             else if(operator === "between"){
               if(!getter['lte']() && !getter['gte']()){ return memo; }
               memo[attr] = [];

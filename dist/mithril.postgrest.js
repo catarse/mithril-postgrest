@@ -61,7 +61,7 @@
                 if (order() && (memo.order = order()), "order" !== attr) {
                     var operator = attributes[attr];
                     if (_.isFunction(getter) && !getter()) return memo;
-                    if ("ilike" === operator || "like" === operator) memo[attr] = operator + ".*" + getter() + "*"; else if ("between" === operator) {
+                    if ("ilike" === operator || "like" === operator) memo[attr] = operator + ".*" + getter() + "*"; else if ("@@" === operator) memo[attr] = operator + "." + getter().replace(/\s+/g, "&"); else if ("between" === operator) {
                         if (!getter.lte() && !getter.gte()) return memo;
                         memo[attr] = [], getter.gte() && memo[attr].push("gte." + getter.gte()), getter.lte() && memo[attr].push("lte." + getter.lte());
                     } else memo[attr] = operator + "." + getter();
