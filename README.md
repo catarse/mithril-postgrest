@@ -42,7 +42,7 @@ To generate a model you should call the model function passin the name and an ar
 
 For example, the following code:
 ```javascript
-m.postgrest.model('users', ['name', 'is_admin']);
+var users = m.postgrest.model('users', ['name', 'is_admin']);
 ```
 
 will generate a model that uses the ```/users``` endpoint and has two properties, ```name``` and ```is_admin```.
@@ -50,6 +50,7 @@ will generate a model that uses the ```/users``` endpoint and has two properties
 The model will have the following methods:
 
  * getPage(pageNumber) - gets a page of data issueing a GET request to the endpoint.
+ * getPageWithToken(pageNumber) - gets a page of data issueing a GET request to the endpoint using the JWT authentication.
 
 The model will have all the properties defined in it's creation plus:
 
@@ -57,20 +58,67 @@ The model will have all the properties defined in it's creation plus:
 
 ### View-Models
 There are some commom View-Model objects that can be generated automaticaly.
+
+#### filtersVM
 One of such cases is the filters VM. It is used to bind a HTML form to a set of getter/setter functions that will be used to generate a query string.
-You can use the function
+You can use the function:
 
  * filtersVM(attributes) - Generate a View-Model based on the attributes object (maps names to operators).
 
 As in the example:
 
 ```javascript
-vm = m.postgrest.filtersVM({id: 'eq', name: 'ilike'});
-vm.id(7);
-vm.name('foo');
-vm.order({name: 'desc'});
-vm.parameters();
+var filters = m.postgrest.filtersVM({id: 'eq', name: 'ilike'});
+filters.id(7);
+filters.name('foo');
+filters.order({name: 'desc'});
+filters.parameters();
 ```
 
-The ```vm.parameters()``` will return an object that can be fed directly to a request with filters and the order by.
+The ```filters.parameters()``` will return an object that can be fed directly to a request with filters and the order by.
 
+If you want to apply any transformation to the value before it being fed to the ```parameters()``` function you have a ```toFilter``` function
+that has been created in each property for you. So let's say we want to remove diacriticts from the name before sending the string:
+
+```javascript
+filters.name.toFilter = function(){
+  return removeDiacritics(this());
+};
+```
+Assuming that you have a ```removeDiacritics``` function defined within the scope of the above code, once you call the ```parameters()``` this function
+will be applied to the property.
+
+#### paginationVM
+Another View-Model very convenient is one that can paginate a model and fetch pages from the API.
+To create such an object you can call:
+
+```javasctipt
+ * paginationVM(loadPageFunction) - Generate a pagination View-Model that loads pages using the loadPageFunction (should be a mithril request)
+```
+
+This can be used with the model and filters defined above like:
+
+```javascript
+var userPages = m.postgrest.paginationVM(users.getPageWithToken);
+// The filter function returns a mithril promise
+userPages.filter(filters.parameters()).then(function(){
+  // Results are in collection
+  console.log(userPages.collection());
+}, 
+function(){
+    alert('Error loading users');
+});
+```
+
+After the first call to ```.filter``` the parameters are stored for use in next pages. To change the filters you need to call ```filter``` again.
+
+```javascript
+// The nextPage function returns a mithril promise
+userPages.nextPage().then(function(){
+  // Results are appended to collection
+  console.log(userPages.collection());
+}, 
+function(){
+    alert('Error loading next page');
+});
+```
