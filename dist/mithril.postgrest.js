@@ -19,20 +19,23 @@
             order: defaultOrder
         }), isLoading = m.prop(!1), page = m.prop(1), total = m.prop(), fetch = function() {
             var d = m.deferred(), getTotal = function(xhr, xhrOptions) {
-                if (xhr && 0 !== xhr.status) {
-                    var rangeHeader = xhr.getResponseHeader("Content-Range");
-                    return _.isString(rangeHeader) && rangeHeader.split("/").length > 1 && total(parseInt(rangeHeader.split("/")[1])), 
-                    xhr.responseText;
-                }
-                return "[]";
+                if (!xhr || 0 === xhr.status) return JSON.stringify({
+                    hint: null,
+                    details: null,
+                    code: 0,
+                    message: "Connection error"
+                });
+                var rangeHeader = xhr.getResponseHeader("Content-Range");
+                return _.isString(rangeHeader) && rangeHeader.split("/").length > 1 && total(parseInt(rangeHeader.split("/")[1])), 
+                xhr.responseText;
             };
             return isLoading(!0), m.redraw(), m.startComputation(), pageRequest(page(), filters(), {
                 extract: getTotal
             }).then(function(data) {
                 collection(_.union(collection(), data)), isLoading(!1), d.resolve(collection()), 
                 m.endComputation();
-            }, function() {
-                isLoading(!1), total(0), m.endComputation(), d.reject(arguments);
+            }, function(error) {
+                isLoading(!1), total(0), m.endComputation(), d.reject(error);
             }), d.promise;
         }, filter = function(parameters) {
             return filters(_.extend({

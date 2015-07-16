@@ -33,16 +33,14 @@
     var fetch = function(){
       var d = m.deferred();
       var getTotal = function(xhr, xhrOptions) {
-        if(xhr && xhr.status !== 0){
-          var rangeHeader = xhr.getResponseHeader("Content-Range")
-          if(_.isString(rangeHeader) && rangeHeader.split("/").length > 1){
-            total(parseInt(rangeHeader.split("/")[1]));
-          }
-          return xhr.responseText;
+        if(!xhr || xhr.status === 0){
+          return JSON.stringify({hint: null, details: null, code: 0, message: "Connection error"});
         }
-        else{
-          return '[]';
+        var rangeHeader = xhr.getResponseHeader("Content-Range")
+        if(_.isString(rangeHeader) && rangeHeader.split("/").length > 1){
+          total(parseInt(rangeHeader.split("/")[1]));
         }
+        return xhr.responseText;
       };
       isLoading(true);
       m.redraw();
@@ -52,11 +50,11 @@
         isLoading(false);
         d.resolve(collection());
         m.endComputation();
-      }, function(){
+      }, function(error){
         isLoading(false);
         total(0);
         m.endComputation();
-        d.reject(arguments);
+        d.reject(error);
       });
       return d.promise;
     };
