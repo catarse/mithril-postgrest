@@ -84,7 +84,7 @@
     var filter = function(){
       var prop = m.prop('');
       // Just so we can have a default to_filter and avoid if _.isFunction calls
-      prop.toFilter = function(){ return this(); }; 
+      prop.toFilter = function(){ return prop(); }; 
       return prop;
     };
 

@@ -55,7 +55,7 @@
         var filter = function() {
             var prop = m.prop("");
             return prop.toFilter = function() {
-                return this();
+                return prop();
             }, prop;
         }, getters = _.reduce(attributes, function(memo, operator, attr) {
             return "between" === operator ? memo[attr] = {
