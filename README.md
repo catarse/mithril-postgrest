@@ -18,7 +18,10 @@ you can just initialize without any argument.
 
 To use an API available at ```http://api.foo.com/v1``` you can use the code:
 ```javascript
-m.postgrest.init("http://api.foo.com/v1", {method: "GET", url: "/authentication_endpoint"});
+m.postgrest.init(
+  "http://api.foo.com/v1", 
+  {method: "GET", url: "/authentication_endpoint"}
+);
 ```
 
 This will create three functions:
