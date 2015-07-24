@@ -34,19 +34,19 @@ describe("m.postgrest.paginationVM", function(){
     });
   });
 
-  describe("#filter", function() {
+  describe("#firstPage", function() {
     it("should be a function", function(){
-      expect(vm.filter).toBeFunction();
+      expect(vm.firstPage).toBeFunction();
     });
 
     it("should call the getPage without incrementing the page number and only with default order if no parameters are passed", function(){
-      vm.filter({id: 'eq.0'});
-      vm.filter();
+      vm.firstPage({id: 'eq.0'});
+      vm.firstPage();
       expect(model.getPage).toHaveBeenCalledWith(1, {order: 'id.desc'}, {extract: jasmine.any(Function)});
     });
 
     it("should call the getPage without incrementing the page number and with filters passed as parameters", function(){
-      vm.filter({id: 'eq.0'});
+      vm.firstPage({id: 'eq.0'});
       expect(model.getPage).toHaveBeenCalledWith(1, {id: 'eq.0', order: 'id.desc'}, {extract: jasmine.any(Function)});
     });
   });

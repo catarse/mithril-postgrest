@@ -59,7 +59,7 @@
       return d.promise;
     };
 
-    var filter = function(parameters){
+    var firstPage = function(parameters){
       filters(_.extend({order: defaultOrder}, parameters));
       collection([]);
       page(1);
@@ -73,7 +73,7 @@
 
     return {
       collection: collection,
-      filter: filter,
+      firstPage: firstPage, 
       isLoading: isLoading,
       nextPage: nextPage,
       total: total

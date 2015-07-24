@@ -37,7 +37,7 @@
             }, function(error) {
                 isLoading(!1), total(0), m.endComputation(), d.reject(error);
             }), d.promise;
-        }, filter = function(parameters) {
+        }, firstPage = function(parameters) {
             return filters(_.extend({
                 order: defaultOrder
             }, parameters)), collection([]), page(1), fetch();
@@ -46,7 +46,7 @@
         };
         return {
             collection: collection,
-            filter: filter,
+            firstPage: firstPage,
             isLoading: isLoading,
             nextPage: nextPage,
             total: total
