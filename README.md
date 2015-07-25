@@ -18,7 +18,10 @@ you can just initialize without any argument.
 
 To use an API available at ```http://api.foo.com/v1``` you can use the code:
 ```javascript
-m.postgrest.init("http://api.foo.com/v1", {method: "GET", url: "/authentication_endpoint"});
+m.postgrest.init(
+  "http://api.foo.com/v1", 
+  {method: "GET", url: "/authentication_endpoint"}
+);
 ```
 
 This will create three functions:
@@ -27,7 +30,7 @@ This will create three functions:
   * m.postgrest.requestWithToken - which should be used for authenticated API calls.
   * m.postgrest.model - creates an object that abstracts an API endpoint
 
-Both functions are just proxies for mithril's ```m.request``` and will return in the same fashion.
+Both request functions are just proxies for mithril's ```m.request``` and will return in the same fashion.
 
 However, the ```m.postgrest.requestWithToken``` stores the JWT for api authentication in the localStorage key "postgrest.token".
 
@@ -38,7 +41,7 @@ m.postgrest.reset();
 ```
 
 ### Models
-To generate a model you should call the model function passin the name and an array with its attribute names. The name of the model should be the name of the endpoint in the PostgREST server.
+To generate a model you should call the model function passing the name and an array with its attribute names. The name of the model should be the name of the endpoint in the PostgREST server.
 
 For example, the following code:
 ```javascript
@@ -100,8 +103,8 @@ This can be used with the model and filters defined above like:
 
 ```javascript
 var userPages = m.postgrest.paginationVM(users.getPageWithToken);
-// The filter function returns a mithril promise
-userPages.filter(filters.parameters()).then(function(){
+// The firstPage function returns a mithril promise
+userPages.firstPage(filters.parameters()).then(function(){
   // Results are in collection
   console.log(userPages.collection());
 }, 
@@ -110,7 +113,7 @@ function(){
 });
 ```
 
-After the first call to ```.filter``` the parameters are stored for use in next pages. To change the filters you need to call ```filter``` again.
+After the first call to ```.firstPage``` the parameters are stored for use in next pages. To change the filters you need to call ```.firstPage``` again.
 
 ```javascript
 // The nextPage function returns a mithril promise
