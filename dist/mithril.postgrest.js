@@ -98,26 +98,33 @@
                 }, {}));
             };
             constructor.pageSize = m.prop(10);
-            var generateXhrConfig = function(page) {
+            var generateXhrConfig = function(page, pageSize) {
                 var toRange = function() {
-                    var from = (page - 1) * constructor.pageSize(), to = from + constructor.pageSize() - 1;
+                    var from = (page - 1) * pageSize, to = from + pageSize - 1;
                     return from + "-" + to;
                 };
                 return function(xhr) {
                     xhr.setRequestHeader("Range-unit", "items"), xhr.setRequestHeader("Range", toRange());
                 };
+            }, request = function(requestFunction, config, data, options) {
+                return requestFunction(_.extend({
+                    method: "GET",
+                    url: "/" + name,
+                    data: data,
+                    config: config
+                }, options));
             }, generateGetPage = function(requestFunction) {
                 return function(page, data, options) {
-                    return requestFunction(_.extend({
-                        method: "GET",
-                        url: "/" + name,
-                        data: data,
-                        config: generateXhrConfig(page)
-                    }, options));
+                    return request(requestFunction, generateXhrConfig(page, constructor.pageSize()), data, options);
+                };
+            }, generateGetRow = function(requestFunction) {
+                return function(data, options) {
+                    return request(requestFunction, generateXhrConfig(1, 1), data, options);
                 };
             };
             return constructor.getPageWithToken = generateGetPage(m.postgrest.requestWithToken), 
-            constructor.getPage = generateGetPage(m.postgrest.request), constructor;
+            constructor.getPage = generateGetPage(m.postgrest.request), constructor.getRowWithToken = generateGetRow(m.postgrest.requestWithToken), 
+            constructor.getRow = generateGetRow(m.postgrest.request), constructor;
         }, postgrest.requestWithToken = function(options) {
             return m.postgrest.authenticate().then(function(data) {
                 var config = _.isFunction(options.config) ? _.compose(options.config, xhrConfig) : xhrConfig;
