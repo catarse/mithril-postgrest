@@ -84,7 +84,7 @@
     var filter = function(){
       var prop = m.prop('');
       // Just so we can have a default to_filter and avoid if _.isFunction calls
-      prop.toFilter = function(){ return prop(); };
+      prop.toFilter = function(){ return (prop() || '').toString().trim(); };
       return prop;
     };
 
@@ -137,7 +137,7 @@
               memo[attr] = operator + '.*' + getter.toFilter() + '*';
             }
             else if(operator === "@@"){
-              memo[attr] = operator + '.' + getter.toFilter().trim().replace(/\s+/g, '&');
+              memo[attr] = operator + '.' + getter.toFilter().replace(/\s+/g, '&');
             }
             else if(operator === "between"){
               if(!getter['lte'].toFilter() && !getter['gte'].toFilter()){ return memo; }
