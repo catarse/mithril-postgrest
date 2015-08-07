@@ -1,4 +1,3 @@
-
 "use strict";
 
 module.exports = function( grunt ) {
@@ -8,7 +7,7 @@ module.exports = function( grunt ) {
 
     uglify: {
       options: {
-        banner: '/*\n    <%= pkg.description %>\n    Copyright (c) 2007 - <%= grunt.template.today("yyyy") %> <%= pkg.author %>\n    Licensed under the MIT license (http://digitalbush.com/projects/masked-input-plugin/#license)\n    Version: <%= pkg.version %>\n*/\n'
+        banner: '/*\n    <%= pkg.description %>\n    Copyright (c) 2007 - <%= grunt.template.today("yyyy") %> <%= pkg.author %>\n    Licensed under the MIT license \n    Version: <%= pkg.version %>\n*/\n'
       },
 
       dev: {
