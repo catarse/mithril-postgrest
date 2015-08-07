@@ -4,41 +4,41 @@
         factory(require('mithril'), require('underscore'), require('node-localstorage'));
     } else {
         // Browser globals
-        factory(m, _, localStorage);
+        factory(window.m, window._, window.localStorage);
     }
 }(function (m, _, localStorage) {
-  var postgrest = {};
+  var postgrest = {},
 
-  var xhrConfig = function(xhr){
-    xhr.setRequestHeader("Authorization", "Bearer " + token());
+  token = function(token){
+    return token ? localStorage.setItem('postgrest.token', token) : localStorage.getItem('postgrest.token');
+  },
+
+  xhrConfig = function(xhr){
+    xhr.setRequestHeader('Authorization', 'Bearer ' + token());
     return xhr;
   };
 
-  var token = function(token){
-    return (token) ? localStorage.setItem("postgrest.token", token) : localStorage.getItem("postgrest.token");
-  };
-
   postgrest.reset = function(){
-    localStorage.removeItem("postgrest.token");
+    localStorage.removeItem('postgrest.token');
   };
 
   postgrest.paginationVM = function(pageRequest, order){
     var collection = m.prop([]),
-        defaultOrder = order || "id.desc",
+        defaultOrder = order || 'id.desc',
         filters = m.prop({order: defaultOrder}),
         isLoading = m.prop(false),
         page = m.prop(1),
-        total = m.prop();
+        total = m.prop(),
 
-    var fetch = function(){
-      var d = m.deferred();
-      var getTotal = function(xhr, xhrOptions) {
+    fetch = function(){
+      var d = m.deferred(),
+          getTotal = function(xhr) {
         if(!xhr || xhr.status === 0){
-          return JSON.stringify({hint: null, details: null, code: 0, message: "Connection error"});
+          return JSON.stringify({hint: null, details: null, code: 0, message: 'Connection error'});
         }
-        var rangeHeader = xhr.getResponseHeader("Content-Range")
-        if(_.isString(rangeHeader) && rangeHeader.split("/").length > 1){
-          total(parseInt(rangeHeader.split("/")[1]));
+        var rangeHeader = xhr.getResponseHeader('Content-Range');
+        if(_.isString(rangeHeader) && rangeHeader.split('/').length > 1){
+          total(parseInt(rangeHeader.split('/')[1]));
         }
         return xhr.responseText;
       };
@@ -57,16 +57,16 @@
         d.reject(error);
       });
       return d.promise;
-    };
+    },
 
-    var firstPage = function(parameters){
+    firstPage = function(parameters){
       filters(_.extend({order: defaultOrder}, parameters));
       collection([]);
       page(1);
       return fetch();
-    };
+    },
 
-    var nextPage = function(){
+    nextPage = function(){
       page(page()+1);
       return fetch();
     };
@@ -86,15 +86,15 @@
       // Just so we can have a default to_filter and avoid if _.isFunction calls
       prop.toFilter = function(){ return (prop() || '').toString().trim(); };
       return prop;
-    };
+    },
 
-    var getters = _.reduce(
+    getters = _.reduce(
       attributes,
       function(memo, operator, attr){
         // The operator between is implemented with two properties, one for greater than value and another for lesser than value.
         // Both properties are sent in the queurystring with the same name,
         // that's why we need the special case here, so we can use a simple map as argument to filtersVM.
-        if(operator === "between"){
+        if(operator === 'between'){
           memo[attr] = {lte: filter(), gte: filter()};
         }
         else{
@@ -103,9 +103,9 @@
         return memo;
       },
       {order: m.prop()}
-    );
+    ),
 
-    var parameters = function(){
+    parameters = function(){
       // The order parameters have a special syntax (just like an order by SQL clause)
       // https://github.com/begriffs/postgrest/wiki/Routing#filtering-and-ordering
       var order = function(){
@@ -116,16 +116,16 @@
             return memo;
           },
           []
-        ).join(",");
+        ).join(',');
       };
 
       return _.reduce(
         getters,
         function(memo, getter, attr){
           if(order()){
-            memo["order"] = order();
+            memo.order = order();
           }
-          if(attr !== "order"){
+          if(attr !== 'order'){
             var operator = attributes[attr];
 
             if(_.isFunction(getter) && !getter()){ return memo; }
@@ -133,20 +133,20 @@
             // Bellow we use different formatting rules for the value depending on the operator
             // These rules are used regardless of the toFilter function,
             // so the user can use a custom toFilter without having to worry with basic filter syntax
-            if(operator === "ilike" || operator === "like"){
+            if(operator === 'ilike' || operator === 'like'){
               memo[attr] = operator + '.*' + getter.toFilter() + '*';
             }
-            else if(operator === "@@"){
+            else if(operator === '@@'){
               memo[attr] = operator + '.' + getter.toFilter().replace(/\s+/g, '&');
             }
-            else if(operator === "between"){
-              if(!getter['lte'].toFilter() && !getter['gte'].toFilter()){ return memo; }
+            else if(operator === 'between'){
+              if(!getter.lte.toFilter() && !getter.gte.toFilter()){ return memo; }
               memo[attr] = [];
-              if(getter['gte']()){
-                memo[attr].push('gte.' + getter['gte'].toFilter());
+              if(getter.gte()){
+                memo[attr].push('gte.' + getter.gte.toFilter());
               }
-              if(getter['lte']()){
-                memo[attr].push('lte.' + getter['lte'].toFilter());
+              if(getter.lte()){
+                memo[attr].push('lte.' + getter.lte.toFilter());
               }
             }
             else{
@@ -183,38 +183,38 @@
             {}
           )
         );
-      }
-      constructor.pageSize = m.prop(10);
+      },
 
-      var generateXhrConfig = function(page, pageSize){
+      generateXhrConfig = function(page, pageSize){
         var toRange = function(){
-          var from = (page - 1) * pageSize;
-          var to = from + pageSize - 1;
-          return from + "-" + to;
+          var from = (page - 1) * pageSize,
+              to = from + pageSize - 1;
+          return from + '-' + to;
         };
 
         return function(xhr){
-          xhr.setRequestHeader("Range-unit", "items");
-          xhr.setRequestHeader("Range", toRange());
+          xhr.setRequestHeader('Range-unit', 'items');
+          xhr.setRequestHeader('Range', toRange());
         };
-      }
+      },
 
-      var request = function(requestFunction, config, data, options){
-        return requestFunction(_.extend({method: "GET", url: "/" + name, data: data, config: config}, options));
-      };
+      request = function(requestFunction, config, data, options){
+        return requestFunction(_.extend({method: 'GET', url: '/' + name, data: data, config: config}, options));
+      },
 
-      var generateGetPage = function(requestFunction){
+      generateGetPage = function(requestFunction){
         return function(page, data, options){
           return request(requestFunction, generateXhrConfig(page, constructor.pageSize()), data, options);
         };
-      };
+      },
 
-      var generateGetRow = function(requestFunction) {
+      generateGetRow = function(requestFunction) {
         return function(data, options){
           return request(requestFunction, generateXhrConfig(1, 1), data, options);
         };
       };
 
+      constructor.pageSize = m.prop(10);
       constructor.getPageWithToken = generateGetPage(m.postgrest.requestWithToken);
       constructor.getPage = generateGetPage(m.postgrest.request);
       constructor.getRowWithToken = generateGetRow(m.postgrest.requestWithToken);
@@ -224,7 +224,7 @@
     };
 
     postgrest.requestWithToken = function(options){
-      return m.postgrest.authenticate().then(function(data){
+      return m.postgrest.authenticate().then(function(){
         var config = _.isFunction(options.config) ? _.compose(options.config, xhrConfig) : xhrConfig;
         return m.postgrest.request(_.extend(options, {config: config}));
       });

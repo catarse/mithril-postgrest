@@ -2,15 +2,15 @@
     A Mithril.js plugin to authenticate requests against PostgREST
     Copyright (c) 2007 - 2015 Diogo Biazus
     Licensed under the MIT license 
-    Version: 1.0.0
+    Version: 1.0.2
 */
 !function(factory) {
     "object" == typeof exports ? factory(require("mithril"), require("underscore"), require("node-localstorage")) : factory(m, _, localStorage);
 }(function(m, _, localStorage) {
-    var postgrest = {}, xhrConfig = function(xhr) {
-        return xhr.setRequestHeader("Authorization", "Bearer " + token()), xhr;
-    }, token = function(token) {
+    var postgrest = {}, token = function(token) {
         return token ? localStorage.setItem("postgrest.token", token) : localStorage.getItem("postgrest.token");
+    }, xhrConfig = function(xhr) {
+        return xhr.setRequestHeader("Authorization", "Bearer " + token()), xhr;
     };
     postgrest.reset = function() {
         localStorage.removeItem("postgrest.token");
@@ -18,7 +18,7 @@
         var collection = m.prop([]), defaultOrder = order || "id.desc", filters = m.prop({
             order: defaultOrder
         }), isLoading = m.prop(!1), page = m.prop(1), total = m.prop(), fetch = function() {
-            var d = m.deferred(), getTotal = function(xhr, xhrOptions) {
+            var d = m.deferred(), getTotal = function(xhr) {
                 if (!xhr || 0 === xhr.status) return JSON.stringify({
                     hint: null,
                     details: null,
@@ -96,9 +96,7 @@
                 data = data || {}, _.extend(this, _.reduce(attributes, function(memo, attr) {
                     return memo[attr] = m.prop(data[attr]), memo;
                 }, {}));
-            };
-            constructor.pageSize = m.prop(10);
-            var generateXhrConfig = function(page, pageSize) {
+            }, generateXhrConfig = function(page, pageSize) {
                 var toRange = function() {
                     var from = (page - 1) * pageSize, to = from + pageSize - 1;
                     return from + "-" + to;
@@ -122,11 +120,11 @@
                     return request(requestFunction, generateXhrConfig(1, 1), data, options);
                 };
             };
-            return constructor.getPageWithToken = generateGetPage(m.postgrest.requestWithToken), 
+            return constructor.pageSize = m.prop(10), constructor.getPageWithToken = generateGetPage(m.postgrest.requestWithToken), 
             constructor.getPage = generateGetPage(m.postgrest.request), constructor.getRowWithToken = generateGetRow(m.postgrest.requestWithToken), 
             constructor.getRow = generateGetRow(m.postgrest.request), constructor;
         }, postgrest.requestWithToken = function(options) {
-            return m.postgrest.authenticate().then(function(data) {
+            return m.postgrest.authenticate().then(function() {
                 var config = _.isFunction(options.config) ? _.compose(options.config, xhrConfig) : xhrConfig;
                 return m.postgrest.request(_.extend(options, {
                     config: config
