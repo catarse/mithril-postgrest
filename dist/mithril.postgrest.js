@@ -5,7 +5,7 @@
     Version: 1.0.2
 */
 !function(factory) {
-    "object" == typeof exports ? factory(require("mithril"), require("underscore"), require("node-localstorage")) : factory(m, _, localStorage);
+    "object" == typeof exports ? factory(require("mithril"), require("underscore"), require("node-localstorage")) : factory(window.m, window._, window.localStorage);
 }(function(m, _, localStorage) {
     var postgrest = {}, token = function(token) {
         return token ? localStorage.setItem("postgrest.token", token) : localStorage.getItem("postgrest.token");
