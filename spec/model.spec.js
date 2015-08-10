@@ -1,11 +1,11 @@
 describe("m.postgrest.model", function(){
-  var apiPrefix = "http://api.foo.com/v1/";
-  var token = "authentication token";
-  var authentication_endpoint = "/authentication_endpoint"
-  var xhr = {
+  var apiPrefix = "http://api.foo.com/v1/",
+  token = "authentication token",
+  authentication_endpoint = "/authentication_endpoint",
+  xhr = {
     setRequestHeader: function(){}
-  };
-  var model = null;
+  },
+  model = null;
 
   beforeEach(function(){
     m.postgrest.reset();
@@ -22,9 +22,9 @@ describe("m.postgrest.model", function(){
   });
 
   it("should create constructor that copies attributes defined in model function", function() {
-    var m = new model({bar: 'test', qux: 'another'});
-    expect(m).toMatchPropertiesOf({bar: 'test'});
-    expect(m).not.toMatchPropertiesOf({bar: 'test', qux: 'another'});
+    var u = new model({bar: 'test', qux: 'another'});
+    expect(u).toMatchPropertiesOf({bar: 'test'});
+    expect(u).not.toMatchPropertiesOf({bar: 'test', qux: 'another'});
   });
 
   describe("patch and patchWithToken", function(){
