@@ -166,7 +166,7 @@
     postgrest.onAuthFailure = m.prop(function(){});
 
     postgrest.request = function(options){
-      return m.request(_.extend(options, {url: apiPrefix + options.url}));
+      return m.request(_.extend({}, options, {url: apiPrefix + options.url}));
     };
 
     postgrest.model = function(name, attributes){
@@ -198,19 +198,23 @@
         };
       },
 
-      request = function(requestFunction, config, data, options){
-        return requestFunction(_.extend({method: 'GET', url: '/' + name, data: data, config: config}, options));
+      nameOptions = function(options){
+        return _.extend({}, options, {url: '/' + name});
+      },
+
+      getOptions = function(data, page, pageSize, options){
+        return _.extend({}, nameOptions(options), {method: 'GET', data: data, config: generateXhrConfig(page, pageSize)});
       },
 
       generateGetPage = function(requestFunction){
         return function(page, data, options){
-          return request(requestFunction, generateXhrConfig(page, constructor.pageSize()), data, options);
+          return requestFunction(getOptions(data, page, constructor.pageSize(), options));
         };
       },
 
       generateGetRow = function(requestFunction) {
         return function(data, options){
-          return request(requestFunction, generateXhrConfig(1, 1), data, options);
+          return requestFunction(getOptions(data, 1, 1, options));
         };
       };
 
