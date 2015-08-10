@@ -174,22 +174,7 @@
     };
 
     postgrest.model = function(name, attributes){
-      var constructor = function(data){
-        data = data || {};
-        _.extend(
-          this,
-          _.reduce(
-            attributes,
-            function(memo, attr){
-              memo[attr] = m.prop(data[attr]);
-              return memo;
-            },
-            {}
-          )
-        );
-      },
-
-      generateXhrConfig = function(page, pageSize){
+      var generateXhrConfig = function(page, pageSize){
         var toRange = function(){
           var from = (page - 1) * pageSize,
               to = from + pageSize - 1;
@@ -201,6 +186,8 @@
           xhr.setRequestHeader('Range', toRange());
         };
       },
+
+      pageSize = m.prop(10),
 
       nameOptions = {url: '/' + name},
 
@@ -218,7 +205,7 @@
 
       generateGetPage = function(requestFunction){
         return function(page, data, options){
-          return requestFunction(getOptions(data, page, constructor.pageSize(), options));
+          return requestFunction(getOptions(data, page, pageSize(), options));
         };
       },
 
@@ -228,15 +215,15 @@
         };
       };
 
-      constructor.pageSize = m.prop(10);
-      constructor.getPageWithToken = generateGetPage(m.postgrest.requestWithToken);
-      constructor.getPage = generateGetPage(m.postgrest.request);
-      constructor.getRowWithToken = generateGetRow(m.postgrest.requestWithToken);
-      constructor.getRow = generateGetRow(m.postgrest.request);
-      constructor.patchWithToken = generatePatch(m.postgrest.requestWithToken);
-      constructor.patch = generatePatch(m.postgrest.request);
-
-      return constructor;
+      return {
+        pageSize: pageSize,
+        getPageWithToken: generateGetPage(m.postgrest.requestWithToken),
+        getPage: generateGetPage(m.postgrest.request),
+        getRowWithToken: generateGetRow(m.postgrest.requestWithToken),
+        getRow: generateGetRow(m.postgrest.request),
+        patchWithToken: generatePatch(m.postgrest.requestWithToken),
+        patch: generatePatch(m.postgrest.request)
+      };
     };
 
     postgrest.requestWithToken = function(options){

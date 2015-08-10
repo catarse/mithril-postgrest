@@ -97,11 +97,7 @@
                 url: apiPrefix + options.url
             }));
         }, postgrest.model = function(name, attributes) {
-            var constructor = function(data) {
-                data = data || {}, _.extend(this, _.reduce(attributes, function(memo, attr) {
-                    return memo[attr] = m.prop(data[attr]), memo;
-                }, {}));
-            }, generateXhrConfig = function(page, pageSize) {
+            var generateXhrConfig = function(page, pageSize) {
                 var toRange = function() {
                     var from = (page - 1) * pageSize, to = from + pageSize - 1;
                     return from + "-" + to;
@@ -109,7 +105,7 @@
                 return function(xhr) {
                     xhr.setRequestHeader("Range-unit", "items"), xhr.setRequestHeader("Range", toRange());
                 };
-            }, nameOptions = {
+            }, pageSize = m.prop(10), nameOptions = {
                 url: "/" + name
             }, getOptions = function(data, page, pageSize, options) {
                 return _.extend({}, options, nameOptions, {
@@ -127,17 +123,22 @@
                 };
             }, generateGetPage = function(requestFunction) {
                 return function(page, data, options) {
-                    return requestFunction(getOptions(data, page, constructor.pageSize(), options));
+                    return requestFunction(getOptions(data, page, pageSize(), options));
                 };
             }, generateGetRow = function(requestFunction) {
                 return function(data, options) {
                     return requestFunction(getOptions(data, 1, 1, options));
                 };
             };
-            return constructor.pageSize = m.prop(10), constructor.getPageWithToken = generateGetPage(m.postgrest.requestWithToken), 
-            constructor.getPage = generateGetPage(m.postgrest.request), constructor.getRowWithToken = generateGetRow(m.postgrest.requestWithToken), 
-            constructor.getRow = generateGetRow(m.postgrest.request), constructor.patchWithToken = generatePatch(m.postgrest.requestWithToken), 
-            constructor.patch = generatePatch(m.postgrest.request), constructor;
+            return {
+                pageSize: pageSize,
+                getPageWithToken: generateGetPage(m.postgrest.requestWithToken),
+                getPage: generateGetPage(m.postgrest.request),
+                getRowWithToken: generateGetRow(m.postgrest.requestWithToken),
+                getRow: generateGetRow(m.postgrest.request),
+                patchWithToken: generatePatch(m.postgrest.requestWithToken),
+                patch: generatePatch(m.postgrest.request)
+            };
         }, postgrest.requestWithToken = function(options) {
             return m.postgrest.authenticate().then(function() {
                 var config = _.isFunction(options.config) ? _.compose(options.config, xhrConfig) : xhrConfig;

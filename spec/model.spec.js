@@ -21,12 +21,6 @@ describe("m.postgrest.model", function(){
     expect(model.getPageWithToken).toBeFunction();
   });
 
-  it("should create constructor that copies attributes defined in model function", function() {
-    var u = new model({bar: 'test', qux: 'another'});
-    expect(u).toMatchPropertiesOf({bar: 'test'});
-    expect(u).not.toMatchPropertiesOf({bar: 'test', qux: 'another'});
-  });
-
   describe("patch and patchWithToken", function(){
     beforeEach(function(){
       spyOn(m.postgrest, "requestWithToken");
