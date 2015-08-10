@@ -64,14 +64,9 @@
             } : memo[attr] = filter(), memo;
         }, {
             order: m.prop()
-        }), parameters = function() {
-            var order = function() {
-                return getters.order() && _.reduce(getters.order(), function(memo, direction, attr) {
-                    return memo.push(attr + "." + direction), memo;
-                }, []).join(",");
-            };
+        }), parametersWithoutOrder = function() {
             return _.reduce(getters, function(memo, getter, attr) {
-                if (order() && (memo.order = order()), "order" !== attr) {
+                if ("order" !== attr) {
                     var operator = attributes[attr];
                     if (_.isFunction(getter) && !getter()) return memo;
                     if ("ilike" === operator || "like" === operator) memo[attr] = operator + ".*" + getter.toFilter() + "*"; else if ("@@" === operator) memo[attr] = operator + "." + getter.toFilter().replace(/\s+/g, "&"); else if ("between" === operator) {
@@ -82,9 +77,19 @@
                 }
                 return memo;
             }, {});
+        }, parameters = function() {
+            var order = function() {
+                return getters.order() && _.reduce(getters.order(), function(memo, direction, attr) {
+                    return memo.push(attr + "." + direction), memo;
+                }, []).join(",");
+            }, orderParameter = order() ? {
+                order: order()
+            } : {};
+            return _.extend({}, orderParameter, parametersWithoutOrder());
         };
         return _.extend({}, getters, {
-            parameters: parameters
+            parameters: parameters,
+            parametersWithoutOrder: parametersWithoutOrder
         });
     }, postgrest.init = function(apiPrefix, authenticationOptions) {
         return postgrest.onAuthFailure = m.prop(function() {}), postgrest.request = function(options) {
@@ -104,31 +109,35 @@
                 return function(xhr) {
                     xhr.setRequestHeader("Range-unit", "items"), xhr.setRequestHeader("Range", toRange());
                 };
-            }, nameOptions = function(options) {
-                return _.extend({}, options, {
-                    url: "/" + name
-                });
-            }, pageOptions = function(page, pageSize, options) {
-                return _.extend({}, options, {
+            }, nameOptions = {
+                url: "/" + name
+            }, getOptions = function(data, page, pageSize, options) {
+                return _.extend({}, options, nameOptions, {
+                    method: "GET",
+                    data: data,
                     config: generateXhrConfig(page, pageSize)
                 });
-            }, getOptions = function(data, options) {
-                return _.extend({}, nameOptions(options), {
-                    method: "GET",
-                    data: data
-                });
+            }, generatePatch = function(requestFunction) {
+                return function(filters, attributes, options) {
+                    var patchOptions = _.extend({}, options, nameOptions, {
+                        method: "PATCH",
+                        data: attributes
+                    });
+                    return patchOptions.url += "?" + m.route.buildQueryString(filters), requestFunction(patchOptions);
+                };
             }, generateGetPage = function(requestFunction) {
                 return function(page, data, options) {
-                    return requestFunction(getOptions(data, pageOptions(page, constructor.pageSize(), options)));
+                    return requestFunction(getOptions(data, page, constructor.pageSize(), options));
                 };
             }, generateGetRow = function(requestFunction) {
                 return function(data, options) {
-                    return requestFunction(getOptions(data, pageOptions(1, 1, options)));
+                    return requestFunction(getOptions(data, 1, 1, options));
                 };
             };
             return constructor.pageSize = m.prop(10), constructor.getPageWithToken = generateGetPage(m.postgrest.requestWithToken), 
             constructor.getPage = generateGetPage(m.postgrest.request), constructor.getRowWithToken = generateGetRow(m.postgrest.requestWithToken), 
-            constructor.getRow = generateGetRow(m.postgrest.request), constructor;
+            constructor.getRow = generateGetRow(m.postgrest.request), constructor.patchWithToken = generatePatch(m.postgrest.requestWithToken), 
+            constructor.patch = generatePatch(m.postgrest.request), constructor;
         }, postgrest.requestWithToken = function(options) {
             return m.postgrest.authenticate().then(function() {
                 var config = _.isFunction(options.config) ? _.compose(options.config, xhrConfig) : xhrConfig;

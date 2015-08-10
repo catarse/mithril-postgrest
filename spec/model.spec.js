@@ -27,6 +27,24 @@ describe("m.postgrest.model", function(){
     expect(m).not.toMatchPropertiesOf({bar: 'test', qux: 'another'});
   });
 
+  describe("patch and patchWithToken", function(){
+    beforeEach(function(){
+      spyOn(m.postgrest, "requestWithToken");
+
+      model = m.postgrest.model('foo', ['id', 'bar']);
+    });
+
+    describe("#getPageWithToken", function() {
+      beforeEach(function(){
+        model.patchWithToken({id: 'eq.1'}, {bar: 'qux'});
+      });
+
+      it("should call m.postgrest.requestWithToken with model name", function() {
+        expect(m.postgrest.requestWithToken).toHaveBeenCalledWith({method: "PATCH", url: "/foo?id=eq.1", data: {bar: 'qux'}});
+      });
+    });
+  });
+
   describe("getPage and getPageWithToken", function(){
     beforeEach(function(){
       var fakeRequest = function(options){

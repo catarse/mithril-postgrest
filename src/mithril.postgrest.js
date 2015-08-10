@@ -105,26 +105,10 @@
       {order: m.prop()}
     ),
 
-    parameters = function(){
-      // The order parameters have a special syntax (just like an order by SQL clause)
-      // https://github.com/begriffs/postgrest/wiki/Routing#filtering-and-ordering
-      var order = function(){
-        return getters.order() && _.reduce(
-          getters.order(),
-          function(memo, direction, attr){
-            memo.push(attr + '.' + direction);
-            return memo;
-          },
-          []
-        ).join(',');
-      };
-
+    parametersWithoutOrder = function(){
       return _.reduce(
         getters,
         function(memo, getter, attr){
-          if(order()){
-            memo.order = order();
-          }
           if(attr !== 'order'){
             var operator = attributes[attr];
 
@@ -157,9 +141,29 @@
         },
         {}
       );
+    },
+
+    parameters = function(){
+      // The order parameters have a special syntax (just like an order by SQL clause)
+      // https://github.com/begriffs/postgrest/wiki/Routing#filtering-and-ordering
+      var order = function(){
+        return getters.order() && _.reduce(
+          getters.order(),
+          function(memo, direction, attr){
+            memo.push(attr + '.' + direction);
+            return memo;
+          },
+          []
+        ).join(',');
+      },
+
+      orderParameter = order() ? {order: order()} : {};
+
+      return _.extend({}, orderParameter, parametersWithoutOrder());
+
     };
 
-    return _.extend({}, getters, {parameters: parameters});
+    return _.extend({}, getters, {parameters: parameters, parametersWithoutOrder: parametersWithoutOrder});
   };
 
   postgrest.init = function(apiPrefix, authenticationOptions){
@@ -198,12 +202,18 @@
         };
       },
 
-      nameOptions = function(options){
-        return _.extend({}, options, {url: '/' + name});
-      },
+      nameOptions = {url: '/' + name},
 
       getOptions = function(data, page, pageSize, options){
-        return _.extend({}, nameOptions(options), {method: 'GET', data: data, config: generateXhrConfig(page, pageSize)});
+        return _.extend({}, options, nameOptions, {method: 'GET', data: data, config: generateXhrConfig(page, pageSize)});
+      },
+
+      generatePatch = function(requestFunction){
+        return function(filters, attributes, options){
+          var patchOptions = _.extend({}, options, nameOptions, {method: 'PATCH', data: attributes});
+          patchOptions.url += '?' + m.route.buildQueryString(filters);
+          return requestFunction(patchOptions);
+        };
       },
 
       generateGetPage = function(requestFunction){
@@ -223,6 +233,8 @@
       constructor.getPage = generateGetPage(m.postgrest.request);
       constructor.getRowWithToken = generateGetRow(m.postgrest.requestWithToken);
       constructor.getRow = generateGetRow(m.postgrest.request);
+      constructor.patchWithToken = generatePatch(m.postgrest.requestWithToken);
+      constructor.patch = generatePatch(m.postgrest.request);
 
       return constructor;
     };
