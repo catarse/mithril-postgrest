@@ -13,7 +13,7 @@ describe("m.postgrest.model", function(){
     m.postgrest.init(apiPrefix, {method: "GET", url: authentication_endpoint});
     spyOn(xhr, "setRequestHeader");
 
-    model = m.postgrest.model('foo', ['bar']);
+    model = m.postgrest.model('foo');
   });
 
   it("should create getPage and getPageWithToken", function(){
@@ -21,21 +21,51 @@ describe("m.postgrest.model", function(){
     expect(model.getPageWithToken).toBeFunction();
   });
 
+  describe("post and postWithToken", function(){
+    beforeEach(function(){
+      spyOn(m.postgrest, "requestWithToken");
+      model = m.postgrest.model('foo');
+      model.postWithToken({bar: 'qux'});
+    });
+
+    it("should call m.postgrest.requestWithToken with model name", function() {
+      expect(m.postgrest.requestWithToken).toHaveBeenCalledWith({method: "POST", url: "/foo", data: {bar: 'qux'}});
+    });
+  });
+
+  describe("options", function(){
+    beforeEach(function(){
+      spyOn(m.postgrest, "request");
+      model = m.postgrest.model('foo');
+      model.options();
+    });
+
+    it("should call m.postgrest.requestWithToken with model name", function() {
+      expect(m.postgrest.request).toHaveBeenCalledWith({method: "OPTIONS", url: "/foo"});
+    });
+  });
+
+  describe("delete and deleteWithToken", function(){
+    beforeEach(function(){
+      spyOn(m.postgrest, "requestWithToken");
+      model = m.postgrest.model('foo');
+      model.deleteWithToken({id: 'eq.1'});
+    });
+
+    it("should call m.postgrest.requestWithToken with model name", function() {
+      expect(m.postgrest.requestWithToken).toHaveBeenCalledWith({method: "DELETE", url: "/foo?id=eq.1"});
+    });
+  });
+
   describe("patch and patchWithToken", function(){
     beforeEach(function(){
       spyOn(m.postgrest, "requestWithToken");
-
-      model = m.postgrest.model('foo', ['id', 'bar']);
+      model = m.postgrest.model('foo');
+      model.patchWithToken({id: 'eq.1'}, {bar: 'qux'});
     });
 
-    describe("#getPageWithToken", function() {
-      beforeEach(function(){
-        model.patchWithToken({id: 'eq.1'}, {bar: 'qux'});
-      });
-
-      it("should call m.postgrest.requestWithToken with model name", function() {
-        expect(m.postgrest.requestWithToken).toHaveBeenCalledWith({method: "PATCH", url: "/foo?id=eq.1", data: {bar: 'qux'}});
-      });
+    it("should call m.postgrest.requestWithToken with model name", function() {
+      expect(m.postgrest.requestWithToken).toHaveBeenCalledWith({method: "PATCH", url: "/foo?id=eq.1", data: {bar: 'qux'}});
     });
   });
 
@@ -49,7 +79,7 @@ describe("m.postgrest.model", function(){
       spyOn(m.postgrest, "request").and.callFake(fakeRequest);
       spyOn(m.postgrest, "requestWithToken").and.callFake(fakeRequest);
 
-      model = m.postgrest.model('foo', ['bar']);
+      model = m.postgrest.model('foo');
     });
 
     describe("#getPageWithToken", function() {
@@ -83,7 +113,7 @@ describe("m.postgrest.model", function(){
       spyOn(m.postgrest, "request").and.callFake(fakeRequest);
       spyOn(m.postgrest, "requestWithToken").and.callFake(fakeRequest);
 
-      model = m.postgrest.model('foo', ['bar']);
+      model = m.postgrest.model('foo');
     });
 
     describe("#getRowWithToken", function() {

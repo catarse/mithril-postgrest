@@ -173,7 +173,7 @@
       return m.request(_.extend({}, options, {url: apiPrefix + options.url}));
     };
 
-    postgrest.model = function(name, attributes){
+    postgrest.model = function(name){
       var generateXhrConfig = function(page, pageSize){
         var toRange = function(){
           var from = (page - 1) * pageSize,
@@ -193,6 +193,24 @@
 
       getOptions = function(data, page, pageSize, options){
         return _.extend({}, options, nameOptions, {method: 'GET', data: data, config: generateXhrConfig(page, pageSize)});
+      },
+
+      options = function(options){
+        return m.postgrest.request(_.extend({}, options, nameOptions, {method: 'OPTIONS'}));
+      },
+
+      generatePost = function(requestFunction){
+        return function(attributes, options){
+          return requestFunction(_.extend({}, options, nameOptions, {method: 'POST', data: attributes}));
+        };
+      },
+
+      generateDelete = function(requestFunction){
+        return function(filters, options){
+          var deleteOptions = _.extend({}, options, nameOptions, {method: 'DELETE'});
+          deleteOptions.url += '?' + m.route.buildQueryString(filters);
+          return requestFunction(deleteOptions);
+        };
       },
 
       generatePatch = function(requestFunction){
@@ -222,7 +240,12 @@
         getRowWithToken: generateGetRow(m.postgrest.requestWithToken),
         getRow: generateGetRow(m.postgrest.request),
         patchWithToken: generatePatch(m.postgrest.requestWithToken),
-        patch: generatePatch(m.postgrest.request)
+        patch: generatePatch(m.postgrest.request),
+        deleteWithToken: generateDelete(m.postgrest.requestWithToken),
+        delete: generateDelete(m.postgrest.request),
+        postWithToken: generatePost(m.postgrest.requestWithToken),
+        post: generatePost(m.postgrest.request),
+        options: options
       };
     };
 
