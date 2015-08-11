@@ -113,6 +113,8 @@
                     data: data,
                     config: generateXhrConfig(page, pageSize)
                 });
+            }, querystring = function(filters, options) {
+                return options.url += "?" + m.route.buildQueryString(filters), options;
             }, options = function(options) {
                 return m.postgrest.request(_.extend({}, options, nameOptions, {
                     method: "OPTIONS"
@@ -126,18 +128,16 @@
                 };
             }, generateDelete = function(requestFunction) {
                 return function(filters, options) {
-                    var deleteOptions = _.extend({}, options, nameOptions, {
+                    return requestFunction(querystring(filters, _.extend({}, options, nameOptions, {
                         method: "DELETE"
-                    });
-                    return deleteOptions.url += "?" + m.route.buildQueryString(filters), requestFunction(deleteOptions);
+                    })));
                 };
             }, generatePatch = function(requestFunction) {
                 return function(filters, attributes, options) {
-                    var patchOptions = _.extend({}, options, nameOptions, {
+                    return requestFunction(querystring(filters, _.extend({}, options, nameOptions, {
                         method: "PATCH",
                         data: attributes
-                    });
-                    return patchOptions.url += "?" + m.route.buildQueryString(filters), requestFunction(patchOptions);
+                    })));
                 };
             }, generateGetPage = function(requestFunction) {
                 return function(page, data, options) {
