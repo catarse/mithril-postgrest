@@ -41,21 +41,30 @@ m.postgrest.reset();
 ```
 
 ### Models
-To generate a model you should call the model function passing the name and an array with its attribute names. The name of the model should be the name of the endpoint in the PostgREST server.
+To generate a model you should call the model function passing its name. The name of the model should be the name of the endpoint in the PostgREST server.
 
 For example, the following code:
 ```javascript
-var users = m.postgrest.model('users', ['name', 'is_admin']);
+var users = m.postgrest.model('users');
 ```
 
-will generate a model that uses the ```/users``` endpoint and has two properties, ```name``` and ```is_admin```.
+will generate an object with functions to operate the ```/users``` endpoint.
 
 The model will have the following methods:
 
- * getPage(pageNumber) - gets a page of data issueing a GET request to the endpoint.
- * getPageWithToken(pageNumber) - gets a page of data issueing a GET request to the endpoint using the JWT authentication.
+ * getPage(page, filters) - gets a page of data issueing a GET request to the endpoint.
+ * getPageWithToken(page, filters) - gets a page of data issueing a GET request to the endpoint using the JWT authentication.
+ * getRow(filters)
+ * getRowWithToken(filters)
+ * patch(filters, data)
+ * patchWithToken(filters, data)
+ * post(data)
+ * postWithToken(data)
+ * delete(filters)
+ * deleteWithToken(filters)
+ * options()
 
-The model will have all the properties defined in it's creation plus:
+The model will have the following property once it is created:
 
  * pageSize - defines the size of each page that comes in ```getPage``` call. Default is 10. 
 
