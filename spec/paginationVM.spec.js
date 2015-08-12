@@ -1,64 +1,88 @@
 describe("m.postgrest.paginationVM", function(){
   var vm = null;
-  var apiPrefix = "http://api.foo.com/v1/";
+  var apiPrefix = "http://api.foo.com/v1";
   var model = null;
 
   beforeEach(function(){
     m.postgrest.init(apiPrefix);
-    model = m.postgrest.model('foo', ['bar']);
-    spyOn(model, "getPage").and.callFake(function(page, filters){
-      return {
-        then: function(callback){
-          callback(['items']);
-        }
-      }
-    });
-    vm = m.postgrest.paginationVM(model.getPage);
+    model = m.postgrest.model('foo');
   });
 
+  describe("when fetch fails", function(){
+    beforeEach(function(){
+      vm = m.postgrest.paginationVM(model.getPage);
+      jasmine.Ajax.stubRequest(/foo.*/).andReturn({
+        'status' : 401, 
+        'responseText' : 'Invalid user'
+      });
+    });
 
-  describe("#collection", function() {
     it("should be initialized with a getter returning an empty array", function(){
       expect(vm.collection()).toBeEmptyArray();
     });
 
-    it("should receive more itens from the fetched pages", function(){
-      vm.nextPage();
-      expect(vm.collection()).toEqual(['items']);
+    it("should receive error message and let array empty", function(){
+      var error;
+      vm.nextPage().then(null, function(e){
+        error = e;
+      });
+      expect(error).toEqual({hint: null, details: null, code: 0, message: 'Invalid user'});
+      expect(vm.collection()).toEqual([]);
     });
   });
 
-  describe("#isLoading", function() {
-    it("should be a function", function(){
-      expect(vm.isLoading).toBeFunction();
-    });
-  });
-
-  describe("#firstPage", function() {
-    it("should be a function", function(){
-      expect(vm.firstPage).toBeFunction();
+  describe("when fetch is successful", function(){
+    beforeEach(function(){
+      spyOn(model, "getPage").and.callThrough();
+      vm = m.postgrest.paginationVM(model.getPage);
+      jasmine.Ajax.stubRequest(/foo.*/).andReturn({
+        'responseText' : '["items"]'
+      });
     });
 
-    it("should call the getPage without incrementing the page number and only with default order if no parameters are passed", function(){
-      vm.firstPage({id: 'eq.0'});
-      vm.firstPage();
-      expect(model.getPage).toHaveBeenCalledWith(1, {order: 'id.desc'}, {extract: jasmine.any(Function)});
+    describe("#collection", function() {
+      it("should be initialized with a getter returning an empty array", function(){
+        expect(vm.collection()).toBeEmptyArray();
+      });
+
+      it("should receive more itens from the fetched pages", function(){
+        vm.nextPage();
+        expect(vm.collection()).toEqual(['items']);
+      });
     });
 
-    it("should call the getPage without incrementing the page number and with filters passed as parameters", function(){
-      vm.firstPage({id: 'eq.0'});
-      expect(model.getPage).toHaveBeenCalledWith(1, {id: 'eq.0', order: 'id.desc'}, {extract: jasmine.any(Function)});
-    });
-  });
-
-  describe("#nextPage", function() {
-    it("should be a function", function(){
-      expect(vm.nextPage).toBeFunction();
+    describe("#isLoading", function() {
+      it("should be a function", function(){
+        expect(vm.isLoading).toBeFunction();
+      });
     });
 
-    it("should call the getPage incrementing the page number and with default filters", function(){
-      vm.nextPage();
-      expect(model.getPage).toHaveBeenCalledWith(2, {order: 'id.desc'}, {extract: jasmine.any(Function)});
+    describe("#firstPage", function() {
+      it("should be a function", function(){
+        expect(vm.firstPage).toBeFunction();
+      });
+
+      it("should call the getPage without incrementing the page number and only with default order if no parameters are passed", function(){
+        vm.firstPage({id: 'eq.0'});
+        vm.firstPage();
+        expect(model.getPage).toHaveBeenCalledWith(1, {order: 'id.desc'}, {extract: jasmine.any(Function)});
+      });
+
+      it("should call the getPage without incrementing the page number and with filters passed as parameters", function(){
+        vm.firstPage({id: 'eq.0'});
+        expect(model.getPage).toHaveBeenCalledWith(1, {id: 'eq.0', order: 'id.desc'}, {extract: jasmine.any(Function)});
+      });
+    });
+
+    describe("#nextPage", function() {
+      it("should be a function", function(){
+        expect(vm.nextPage).toBeFunction();
+      });
+
+      it("should call the getPage incrementing the page number and with default filters", function(){
+        vm.nextPage();
+        expect(model.getPage).toHaveBeenCalledWith(2, {order: 'id.desc'}, {extract: jasmine.any(Function)});
+      });
     });
   });
 });

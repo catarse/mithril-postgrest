@@ -40,7 +40,13 @@
         if(_.isString(rangeHeader) && rangeHeader.split('/').length > 1){
           total(parseInt(rangeHeader.split('/')[1]));
         }
-        return xhr.responseText;
+        try{
+          JSON.parse(xhr.responseText);
+          return xhr.responseText;
+        }
+        catch(ex){
+          return JSON.stringify({hint: null, details: null, code: 0, message: xhr.responseText});
+        }
       };
       isLoading(true);
       m.redraw();

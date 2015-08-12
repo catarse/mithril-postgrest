@@ -26,8 +26,17 @@
                     message: "Connection error"
                 });
                 var rangeHeader = xhr.getResponseHeader("Content-Range");
-                return _.isString(rangeHeader) && rangeHeader.split("/").length > 1 && total(parseInt(rangeHeader.split("/")[1])), 
-                xhr.responseText;
+                _.isString(rangeHeader) && rangeHeader.split("/").length > 1 && total(parseInt(rangeHeader.split("/")[1]));
+                try {
+                    return JSON.parse(xhr.responseText), xhr.responseText;
+                } catch (ex) {
+                    return JSON.stringify({
+                        hint: null,
+                        details: null,
+                        code: 0,
+                        message: xhr.responseText
+                    });
+                }
             };
             return isLoading(!0), m.redraw(), m.startComputation(), pageRequest(page(), filters(), {
                 extract: getTotal

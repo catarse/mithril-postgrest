@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 module.exports = function( grunt ) {
   grunt.initConfig({
@@ -30,22 +30,24 @@ module.exports = function( grunt ) {
 
     jasmine: {
       full: {
-        src: "src/**/*.js",
+        src: 'src/**/*.js',
         options: {
-          specs: "spec/*[S|s]pec.js",
+          specs: 'spec/*[S|s]pec.js',
           vendor: [
-            "node_modules/jasmine-expect/dist/jasmine-matchers.js",
-            "spec/lib/matchers.js",
-            "spec/lib/jasmine-species/jasmine-grammar.js",
-            "bower_components/**/*.js"
+            'node_modules/jasmine-expect/dist/jasmine-matchers.js',
+            'spec/lib/matchers.js',
+            'spec/lib/jasmine-ajax/mock-ajax.js',
+            'spec/lib/jasmine-species/jasmine-grammar.js',
+            'spec/lib/mocks/*mock.js',
+            'bower_components/**/*.js'
           ]
         }
       }
     }
   });
 
-  grunt.loadNpmTasks("grunt-contrib-jasmine");
-  grunt.loadNpmTasks("grunt-contrib-uglify");
+  grunt.loadNpmTasks('grunt-contrib-jasmine');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
 
   grunt.registerTask('test', ['jasmine']);
   grunt.registerTask('default', ['test', 'uglify']);
