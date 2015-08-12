@@ -38,13 +38,14 @@
                     });
                 }
             };
-            return isLoading(!0), m.redraw(), m.startComputation(), pageRequest(page(), filters(), {
+            return isLoading(!0), pageRequest(page(), filters(), {
+                background: !0,
                 extract: getTotal
             }).then(function(data) {
                 collection(_.union(collection(), data)), isLoading(!1), d.resolve(collection()), 
-                m.endComputation();
+                m.redraw();
             }, function(error) {
-                isLoading(!1), total(0), m.endComputation(), d.reject(error);
+                isLoading(!1), total(0), d.reject(error), m.redraw();
             }), d.promise;
         }, firstPage = function(parameters) {
             return filters(_.extend({

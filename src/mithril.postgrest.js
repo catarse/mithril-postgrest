@@ -49,18 +49,16 @@
         }
       };
       isLoading(true);
-      m.redraw();
-      m.startComputation();
-      pageRequest(page(), filters(), {extract: getTotal}).then(function(data){
+      pageRequest(page(), filters(), {background: true, extract: getTotal}).then(function(data){
         collection(_.union(collection(), data));
         isLoading(false);
         d.resolve(collection());
-        m.endComputation();
+        m.redraw();
       }, function(error){
         isLoading(false);
         total(0);
-        m.endComputation();
         d.reject(error);
+        m.redraw();
       });
       return d.promise;
     },

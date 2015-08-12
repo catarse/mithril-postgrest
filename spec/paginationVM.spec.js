@@ -65,12 +65,12 @@ describe("m.postgrest.paginationVM", function(){
       it("should call the getPage without incrementing the page number and only with default order if no parameters are passed", function(){
         vm.firstPage({id: 'eq.0'});
         vm.firstPage();
-        expect(model.getPage).toHaveBeenCalledWith(1, {order: 'id.desc'}, {extract: jasmine.any(Function)});
+        expect(model.getPage).toHaveBeenCalledWith(1, {order: 'id.desc'}, {background: true, extract: jasmine.any(Function)});
       });
 
       it("should call the getPage without incrementing the page number and with filters passed as parameters", function(){
         vm.firstPage({id: 'eq.0'});
-        expect(model.getPage).toHaveBeenCalledWith(1, {id: 'eq.0', order: 'id.desc'}, {extract: jasmine.any(Function)});
+        expect(model.getPage).toHaveBeenCalledWith(1, {id: 'eq.0', order: 'id.desc'}, {background: true, extract: jasmine.any(Function)});
       });
     });
 
@@ -81,7 +81,7 @@ describe("m.postgrest.paginationVM", function(){
 
       it("should call the getPage incrementing the page number and with default filters", function(){
         vm.nextPage();
-        expect(model.getPage).toHaveBeenCalledWith(2, {order: 'id.desc'}, {extract: jasmine.any(Function)});
+        expect(model.getPage).toHaveBeenCalledWith(2, {order: 'id.desc'}, {background: true, extract: jasmine.any(Function)});
       });
     });
   });
