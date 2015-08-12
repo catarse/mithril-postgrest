@@ -17,13 +17,13 @@ module.exports = function( grunt ) {
         },
 
         files: {
-          'dist/mithril.postgrest.js': ['src/mithril.postgrest.js']
+          'dist/mithril.postgrest.js': ['src/**/*.js']
         }
       },
 
       min: {
         files: {
-          'dist/mithril.postgrest.min.js': ['src/mithril.postgrest.js']
+          'dist/mithril.postgrest.min.js': ['src/**/*.js']
         }
       }
     },

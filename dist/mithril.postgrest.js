@@ -14,93 +14,6 @@
     };
     postgrest.reset = function() {
         localStorage.removeItem("postgrest.token");
-    }, postgrest.paginationVM = function(pageRequest, order) {
-        var collection = m.prop([]), defaultOrder = order || "id.desc", filters = m.prop({
-            order: defaultOrder
-        }), isLoading = m.prop(!1), page = m.prop(1), total = m.prop(), fetch = function() {
-            var d = m.deferred(), getTotal = function(xhr) {
-                if (!xhr || 0 === xhr.status) return JSON.stringify({
-                    hint: null,
-                    details: null,
-                    code: 0,
-                    message: "Connection error"
-                });
-                var rangeHeader = xhr.getResponseHeader("Content-Range");
-                _.isString(rangeHeader) && rangeHeader.split("/").length > 1 && total(parseInt(rangeHeader.split("/")[1]));
-                try {
-                    return JSON.parse(xhr.responseText), xhr.responseText;
-                } catch (ex) {
-                    return JSON.stringify({
-                        hint: null,
-                        details: null,
-                        code: 0,
-                        message: xhr.responseText
-                    });
-                }
-            };
-            return isLoading(!0), pageRequest(page(), filters(), {
-                background: !0,
-                extract: getTotal
-            }).then(function(data) {
-                collection(_.union(collection(), data)), isLoading(!1), d.resolve(collection()), 
-                m.redraw();
-            }, function(error) {
-                isLoading(!1), total(0), d.reject(error), m.redraw();
-            }), d.promise;
-        }, firstPage = function(parameters) {
-            return filters(_.extend({
-                order: defaultOrder
-            }, parameters)), collection([]), page(1), fetch();
-        }, nextPage = function() {
-            return page(page() + 1), fetch();
-        };
-        return {
-            collection: collection,
-            firstPage: firstPage,
-            isLoading: isLoading,
-            nextPage: nextPage,
-            total: total
-        };
-    }, postgrest.filtersVM = function(attributes) {
-        var filter = function() {
-            var prop = m.prop("");
-            return prop.toFilter = function() {
-                return (prop() || "").toString().trim();
-            }, prop;
-        }, getters = _.reduce(attributes, function(memo, operator, attr) {
-            return "between" === operator ? memo[attr] = {
-                lte: filter(),
-                gte: filter()
-            } : memo[attr] = filter(), memo;
-        }, {
-            order: m.prop()
-        }), parametersWithoutOrder = function() {
-            return _.reduce(getters, function(memo, getter, attr) {
-                if ("order" !== attr) {
-                    var operator = attributes[attr];
-                    if (_.isFunction(getter) && !getter()) return memo;
-                    if ("ilike" === operator || "like" === operator) memo[attr] = operator + ".*" + getter.toFilter() + "*"; else if ("@@" === operator) memo[attr] = operator + "." + getter.toFilter().replace(/\s+/g, "&"); else if ("between" === operator) {
-                        if (!getter.lte.toFilter() && !getter.gte.toFilter()) return memo;
-                        memo[attr] = [], getter.gte() && memo[attr].push("gte." + getter.gte.toFilter()), 
-                        getter.lte() && memo[attr].push("lte." + getter.lte.toFilter());
-                    } else memo[attr] = operator + "." + getter.toFilter();
-                }
-                return memo;
-            }, {});
-        }, parameters = function() {
-            var order = function() {
-                return getters.order() && _.reduce(getters.order(), function(memo, direction, attr) {
-                    return memo.push(attr + "." + direction), memo;
-                }, []).join(",");
-            }, orderParameter = order() ? {
-                order: order()
-            } : {};
-            return _.extend({}, orderParameter, parametersWithoutOrder());
-        };
-        return _.extend({}, getters, {
-            parameters: parameters,
-            parametersWithoutOrder: parametersWithoutOrder
-        });
     }, postgrest.init = function(apiPrefix, authenticationOptions) {
         return postgrest.onAuthFailure = m.prop(function() {}), postgrest.request = function(options) {
             return m.request(_.extend({}, options, {
@@ -188,4 +101,99 @@
             }, postgrest.onAuthFailure());
         }, postgrest;
     }, m.postgrest = postgrest;
+}), function(factory) {
+    "object" == typeof exports ? factory(require("mithril"), require("underscore")) : factory(window.m, window._);
+}(function(m, _) {
+    m.postgrest.filtersVM = function(attributes) {
+        var filter = function() {
+            var prop = m.prop("");
+            return prop.toFilter = function() {
+                return (prop() || "").toString().trim();
+            }, prop;
+        }, getters = _.reduce(attributes, function(memo, operator, attr) {
+            return "between" === operator ? memo[attr] = {
+                lte: filter(),
+                gte: filter()
+            } : memo[attr] = filter(), memo;
+        }, {
+            order: m.prop()
+        }), parametersWithoutOrder = function() {
+            return _.reduce(getters, function(memo, getter, attr) {
+                if ("order" !== attr) {
+                    var operator = attributes[attr];
+                    if (_.isFunction(getter) && !getter()) return memo;
+                    if ("ilike" === operator || "like" === operator) memo[attr] = operator + ".*" + getter.toFilter() + "*"; else if ("@@" === operator) memo[attr] = operator + "." + getter.toFilter().replace(/\s+/g, "&"); else if ("between" === operator) {
+                        if (!getter.lte.toFilter() && !getter.gte.toFilter()) return memo;
+                        memo[attr] = [], getter.gte() && memo[attr].push("gte." + getter.gte.toFilter()), 
+                        getter.lte() && memo[attr].push("lte." + getter.lte.toFilter());
+                    } else memo[attr] = operator + "." + getter.toFilter();
+                }
+                return memo;
+            }, {});
+        }, parameters = function() {
+            var order = function() {
+                return getters.order() && _.reduce(getters.order(), function(memo, direction, attr) {
+                    return memo.push(attr + "." + direction), memo;
+                }, []).join(",");
+            }, orderParameter = order() ? {
+                order: order()
+            } : {};
+            return _.extend({}, orderParameter, parametersWithoutOrder());
+        };
+        return _.extend({}, getters, {
+            parameters: parameters,
+            parametersWithoutOrder: parametersWithoutOrder
+        });
+    };
+}), function(factory) {
+    "object" == typeof exports ? factory(require("mithril"), require("underscore")) : factory(window.m, window._);
+}(function(m, _) {
+    m.postgrest.paginationVM = function(pageRequest, order) {
+        var collection = m.prop([]), defaultOrder = order || "id.desc", filters = m.prop({
+            order: defaultOrder
+        }), isLoading = m.prop(!1), page = m.prop(1), total = m.prop(), fetch = function() {
+            var d = m.deferred(), getTotal = function(xhr) {
+                if (!xhr || 0 === xhr.status) return JSON.stringify({
+                    hint: null,
+                    details: null,
+                    code: 0,
+                    message: "Connection error"
+                });
+                var rangeHeader = xhr.getResponseHeader("Content-Range");
+                _.isString(rangeHeader) && rangeHeader.split("/").length > 1 && total(parseInt(rangeHeader.split("/")[1]));
+                try {
+                    return JSON.parse(xhr.responseText), xhr.responseText;
+                } catch (ex) {
+                    return JSON.stringify({
+                        hint: null,
+                        details: null,
+                        code: 0,
+                        message: xhr.responseText
+                    });
+                }
+            };
+            return isLoading(!0), pageRequest(page(), filters(), {
+                background: !0,
+                extract: getTotal
+            }).then(function(data) {
+                collection(_.union(collection(), data)), isLoading(!1), d.resolve(collection()), 
+                m.redraw();
+            }, function(error) {
+                isLoading(!1), total(0), d.reject(error), m.redraw();
+            }), d.promise;
+        }, firstPage = function(parameters) {
+            return filters(_.extend({
+                order: defaultOrder
+            }, parameters)), collection([]), page(1), fetch();
+        }, nextPage = function() {
+            return page(page() + 1), fetch();
+        };
+        return {
+            collection: collection,
+            firstPage: firstPage,
+            isLoading: isLoading,
+            nextPage: nextPage,
+            total: total
+        };
+    };
 });
