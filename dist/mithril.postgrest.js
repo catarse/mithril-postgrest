@@ -9,13 +9,17 @@
 }(function(m, _, localStorage) {
     var postgrest = {}, token = function(token) {
         return token ? localStorage.setItem("postgrest.token", token) : localStorage.getItem("postgrest.token");
+    }, mergeConfig = function(config, options) {
+        return options && _.isFunction(options.config) ? _.compose(options.config, config) : config;
     }, addHeaders = function(headers) {
         return function(xhr) {
             return _.each(headers, function(value, key) {
                 xhr.setRequestHeader(key, value);
             }), xhr;
         };
-    };
+    }, addRepresentationHeader = addHeaders({
+        Prefer: "return=representation"
+    });
     postgrest.reset = function() {
         localStorage.removeItem("postgrest.token");
     }, postgrest.init = function(apiPrefix, authenticationOptions) {
@@ -35,13 +39,12 @@
                 Authorization: "Bearer " + token()
             });
             return m.postgrest.authenticate().then(function() {
-                var config = _.isFunction(options.config) ? _.compose(options.config, addAuthorizationHeader) : addAuthorizationHeader;
-                return m.postgrest.request(_.extend(options, {
-                    config: config
+                return m.postgrest.request(_.extend({}, options, {
+                    config: mergeConfig(addAuthorizationHeader, options)
                 }));
             });
         }, postgrest.model = function(name) {
-            var paginationHeaders = function(page, pageSize) {
+            var addPaginationHeaders = function(page, pageSize) {
                 var toRange = function() {
                     var from = (page - 1) * pageSize, to = from + pageSize - 1;
                     return from + "-" + to;
@@ -56,7 +59,7 @@
                 return _.extend({}, options, nameOptions, {
                     method: "GET",
                     data: data,
-                    config: paginationHeaders(page, pageSize)
+                    config: mergeConfig(addPaginationHeaders(page, pageSize), options)
                 });
             }, querystring = function(filters, options) {
                 return options.url += "?" + m.route.buildQueryString(filters), options;
@@ -68,7 +71,8 @@
                 return function(attributes, options) {
                     return requestFunction(_.extend({}, options, nameOptions, {
                         method: "POST",
-                        data: attributes
+                        data: attributes,
+                        config: mergeConfig(addRepresentationHeader, options)
                     }));
                 };
             }, generateDelete = function(requestFunction) {
@@ -81,7 +85,8 @@
                 return function(filters, attributes, options) {
                     return requestFunction(querystring(filters, _.extend({}, options, nameOptions, {
                         method: "PATCH",
-                        data: attributes
+                        data: attributes,
+                        config: mergeConfig(addRepresentationHeader, options)
                     })));
                 };
             }, generateGetPage = function(requestFunction) {

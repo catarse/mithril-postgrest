@@ -29,7 +29,7 @@ describe("m.postgrest.model", function(){
     });
 
     it("should call m.postgrest.requestWithToken with model name", function() {
-      expect(m.postgrest.requestWithToken).toHaveBeenCalledWith({method: "POST", url: "/foo", data: {bar: 'qux'}});
+      expect(m.postgrest.requestWithToken).toHaveBeenCalledWith({method: "POST", url: "/foo", data: {bar: 'qux'}, config: jasmine.any(Function)});
     });
   });
 
@@ -65,7 +65,7 @@ describe("m.postgrest.model", function(){
     });
 
     it("should call m.postgrest.requestWithToken with model name", function() {
-      expect(m.postgrest.requestWithToken).toHaveBeenCalledWith({method: "PATCH", url: "/foo?id=eq.1", data: {bar: 'qux'}});
+      expect(m.postgrest.requestWithToken).toHaveBeenCalledWith({method: "PATCH", url: "/foo?id=eq.1", data: {bar: 'qux'}, config: jasmine.any(Function)});
     });
   });
 

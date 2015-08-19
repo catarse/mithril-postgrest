@@ -13,6 +13,10 @@
     return token ? localStorage.setItem('postgrest.token', token) : localStorage.getItem('postgrest.token');
   },
 
+  mergeConfig = function(config, options){ 
+    return options && _.isFunction(options.config) ? _.compose(options.config, config) : config;
+  },
+
   addHeaders = function(headers){
     return function(xhr){
       _.each(headers, function(value, key){
@@ -20,7 +24,9 @@
       });
       return xhr;
     };
-  };
+  },
+
+  addRepresentationHeader = addHeaders({'Prefer': 'return=representation'});
 
   postgrest.reset = function(){
     localStorage.removeItem('postgrest.token');
@@ -49,13 +55,12 @@
     postgrest.requestWithToken = function(options){
       var addAuthorizationHeader = addHeaders({'Authorization': 'Bearer ' + token()});
       return m.postgrest.authenticate().then(function(){
-        var config = _.isFunction(options.config) ? _.compose(options.config, addAuthorizationHeader) : addAuthorizationHeader;
-        return m.postgrest.request(_.extend(options, {config: config}));
+        return m.postgrest.request(_.extend({}, options, {config: mergeConfig(addAuthorizationHeader, options)}));
       });
     };
 
     postgrest.model = function(name){
-      var paginationHeaders = function(page, pageSize){
+      var addPaginationHeaders = function(page, pageSize){
         var toRange = function(){
           var from = (page - 1) * pageSize,
               to = from + pageSize - 1;
@@ -70,7 +75,7 @@
       nameOptions = {url: '/' + name},
 
       getOptions = function(data, page, pageSize, options){
-        return _.extend({}, options, nameOptions, {method: 'GET', data: data, config: paginationHeaders(page, pageSize)});
+        return _.extend({}, options, nameOptions, {method: 'GET', data: data, config: mergeConfig(addPaginationHeaders(page, pageSize), options)});
       },
 
       querystring = function(filters, options){
@@ -84,7 +89,7 @@
 
       generatePost = function(requestFunction){
         return function(attributes, options){
-          return requestFunction(_.extend({}, options, nameOptions, {method: 'POST', data: attributes}));
+          return requestFunction(_.extend({}, options, nameOptions, {method: 'POST', data: attributes, config: mergeConfig(addRepresentationHeader, options)}));
         };
       },
 
@@ -96,7 +101,16 @@
 
       generatePatch = function(requestFunction){
         return function(filters, attributes, options){
-          return requestFunction(querystring(filters, _.extend({}, options, nameOptions, {method: 'PATCH', data: attributes})));
+          return requestFunction(
+            querystring(
+              filters, 
+              _.extend(
+                {}, 
+                options, 
+                nameOptions, 
+                {method: 'PATCH', data: attributes, config: mergeConfig(addRepresentationHeader, options)})
+            )
+          );
         };
       },
 
