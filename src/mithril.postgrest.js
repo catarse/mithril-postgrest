@@ -32,6 +32,10 @@
     localStorage.removeItem('postgrest.token');
   };
 
+  postgrest.loader = function(defaultState, request){
+    return m.prop(defaultState);
+  };
+
   postgrest.init = function(apiPrefix, authenticationOptions){
     postgrest.onAuthFailure = m.prop(function(){});
 
@@ -87,57 +91,50 @@
         return m.postgrest.request(_.extend({}, options, nameOptions, {method: 'OPTIONS'}));
       },
 
-      generatePost = function(requestFunction){
-        return function(attributes, options){
-          return requestFunction(_.extend({}, options, nameOptions, {method: 'POST', data: attributes, config: mergeConfig(addRepresentationHeader, options)}));
-        };
+      post = function(attributes, options){
+        return _.extend(
+          {}, 
+          options, 
+          nameOptions, 
+          {method: 'POST', data: attributes, config: mergeConfig(addRepresentationHeader, options)}
+        );
       },
 
-      generateDelete = function(requestFunction){
-        return function(filters, options){
-          return requestFunction(querystring(filters, _.extend({}, options, nameOptions, {method: 'DELETE'})));
-        };
+      deleteOptions = function(filters, options){
+        return querystring(filters, _.extend({}, options, nameOptions, {method: 'DELETE'}));
       },
 
-      generatePatch = function(requestFunction){
-        return function(filters, attributes, options){
-          return requestFunction(
-            querystring(
-              filters, 
-              _.extend(
-                {}, 
-                options, 
-                nameOptions, 
-                {method: 'PATCH', data: attributes, config: mergeConfig(addRepresentationHeader, options)})
-            )
-          );
-        };
+      patch = function(filters, attributes, options){
+        return querystring(
+          filters, 
+          _.extend(
+            {}, 
+            options, 
+            nameOptions, 
+            {method: 'PATCH', data: attributes, config: mergeConfig(addRepresentationHeader, options)})
+        );
       },
 
-      generateGetPage = function(requestFunction){
-        return function(page, data, options){
-          return requestFunction(getOptions(data, page, pageSize(), options));
-        };
+      getPage = function(page, data, options){
+        return getOptions(data, page, pageSize(), options);
       },
 
-      generateGetRow = function(requestFunction) {
-        return function(data, options){
-          return requestFunction(getOptions(data, 1, 1, options));
-        };
+      getRow = function(data, options){
+        return getOptions(data, 1, 1, options);
       };
 
       return {
         pageSize: pageSize,
-        getPageWithToken: generateGetPage(m.postgrest.requestWithToken),
-        getPage: generateGetPage(m.postgrest.request),
-        getRowWithToken: generateGetRow(m.postgrest.requestWithToken),
-        getRow: generateGetRow(m.postgrest.request),
-        patchWithToken: generatePatch(m.postgrest.requestWithToken),
-        patch: generatePatch(m.postgrest.request),
-        deleteWithToken: generateDelete(m.postgrest.requestWithToken),
-        delete: generateDelete(m.postgrest.request),
-        postWithToken: generatePost(m.postgrest.requestWithToken),
-        post: generatePost(m.postgrest.request),
+        getPage:          _.compose(postgrest.request, getPage),
+        getRow:           _.compose(postgrest.request, getRow),
+        patch:            _.compose(postgrest.request, patch),
+        post:             _.compose(postgrest.request, post),
+        deleteRequest:    _.compose(postgrest.request, deleteOptions),
+        getPageWithToken: _.compose(postgrest.requestWithToken, getPage), 
+        getRowWithToken:  _.compose(postgrest.requestWithToken, getRow),
+        patchWithToken:   _.compose(postgrest.requestWithToken, patch),
+        deleteWithToken:  _.compose(postgrest.requestWithToken, deleteOptions),
+        postWithToken:    _.compose(postgrest.requestWithToken, post),
         options: options
       };
     };

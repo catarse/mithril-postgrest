@@ -2,7 +2,7 @@
     A Mithril.js plugin to authenticate requests against PostgREST
     Copyright (c) 2007 - 2015 Diogo Biazus
     Licensed under the MIT license 
-    Version: 1.0.2
+    Version: 1.0.5
 */
 !function(factory) {
     "object" == typeof exports ? factory(require("mithril"), require("underscore"), require("node-localstorage")) : factory(window.m, window._, window.localStorage);
@@ -22,6 +22,8 @@
     });
     postgrest.reset = function() {
         localStorage.removeItem("postgrest.token");
+    }, postgrest.loader = function(defaultState) {
+        return m.prop(defaultState);
     }, postgrest.init = function(apiPrefix, authenticationOptions) {
         return postgrest.onAuthFailure = m.prop(function() {}), postgrest.request = function(options) {
             return m.request(_.extend({}, options, {
