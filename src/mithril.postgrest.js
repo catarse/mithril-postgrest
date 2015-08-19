@@ -32,8 +32,22 @@
     localStorage.removeItem('postgrest.token');
   };
 
-  postgrest.loader = function(defaultState, request){
-    return m.prop(defaultState);
+  postgrest.loader = function(defaultState, requestFunction, options){
+    var loader = m.prop(defaultState), d = m.deferred();
+    loader.load = function(){
+      loader(true);
+      requestFunction(_.extend({}, options, {background: true})).then(function(data){
+        loader(false);
+        d.resolve(data);
+        m.redraw();
+      }, function(error){
+        loader(false);
+        d.reject(error);
+        m.redraw();
+      });
+      return d.promise;
+    };
+    return loader;
   };
 
   postgrest.init = function(apiPrefix, authenticationOptions){
@@ -91,7 +105,7 @@
         return m.postgrest.request(_.extend({}, options, nameOptions, {method: 'OPTIONS'}));
       },
 
-      post = function(attributes, options){
+      postOptions = function(attributes, options){
         return _.extend(
           {}, 
           options, 
@@ -104,7 +118,7 @@
         return querystring(filters, _.extend({}, options, nameOptions, {method: 'DELETE'}));
       },
 
-      patch = function(filters, attributes, options){
+      patchOptions = function(filters, attributes, options){
         return querystring(
           filters, 
           _.extend(
@@ -115,26 +129,31 @@
         );
       },
 
-      getPage = function(page, data, options){
+      getPageOptions = function(page, data, options){
         return getOptions(data, page, pageSize(), options);
       },
 
-      getRow = function(data, options){
+      getRowOptions = function(data, options){
         return getOptions(data, 1, 1, options);
       };
 
       return {
         pageSize: pageSize,
-        getPage:          _.compose(postgrest.request, getPage),
-        getRow:           _.compose(postgrest.request, getRow),
-        patch:            _.compose(postgrest.request, patch),
-        post:             _.compose(postgrest.request, post),
+        getPageOptions:   getPageOptions,
+        getRowOptions:    getRowOptions,
+        patchOptions:     patchOptions,
+        postOptions:      postOptions,
+        deleteOptions:    deleteOptions,
+        getPage:          _.compose(postgrest.request, getPageOptions),
+        getRow:           _.compose(postgrest.request, getRowOptions),
+        patch:            _.compose(postgrest.request, patchOptions),
+        post:             _.compose(postgrest.request, postOptions),
         deleteRequest:    _.compose(postgrest.request, deleteOptions),
-        getPageWithToken: _.compose(postgrest.requestWithToken, getPage), 
-        getRowWithToken:  _.compose(postgrest.requestWithToken, getRow),
-        patchWithToken:   _.compose(postgrest.requestWithToken, patch),
+        getPageWithToken: _.compose(postgrest.requestWithToken, getPageOptions), 
+        getRowWithToken:  _.compose(postgrest.requestWithToken, getRowOptions),
+        patchWithToken:   _.compose(postgrest.requestWithToken, patchOptions),
+        postWithToken:    _.compose(postgrest.requestWithToken, postOptions),
         deleteWithToken:  _.compose(postgrest.requestWithToken, deleteOptions),
-        postWithToken:    _.compose(postgrest.requestWithToken, post),
         options: options
       };
     };
