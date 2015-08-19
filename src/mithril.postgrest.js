@@ -13,9 +13,13 @@
     return token ? localStorage.setItem('postgrest.token', token) : localStorage.getItem('postgrest.token');
   },
 
-  xhrConfig = function(xhr){
-    xhr.setRequestHeader('Authorization', 'Bearer ' + token());
-    return xhr;
+  addHeaders = function(headers){
+    return function(xhr){
+      _.each(headers, function(value, key){
+        xhr.setRequestHeader(key, value);
+      });
+      return xhr;
+    };
   };
 
   postgrest.reset = function(){
@@ -29,18 +33,36 @@
       return m.request(_.extend({}, options, {url: apiPrefix + options.url}));
     };
 
+    postgrest.authenticate = function(){
+      var deferred = m.deferred();
+      if(token()){
+        deferred.resolve({token: token()});
+      }
+      else{
+        return m.request(authenticationOptions).then(function(data){
+          token(data.token);
+        }, postgrest.onAuthFailure());
+      }
+      return deferred.promise;
+    };
+
+    postgrest.requestWithToken = function(options){
+      var addAuthorizationHeader = addHeaders({'Authorization': 'Bearer ' + token()});
+      return m.postgrest.authenticate().then(function(){
+        var config = _.isFunction(options.config) ? _.compose(options.config, addAuthorizationHeader) : addAuthorizationHeader;
+        return m.postgrest.request(_.extend(options, {config: config}));
+      });
+    };
+
     postgrest.model = function(name){
-      var generateXhrConfig = function(page, pageSize){
+      var paginationHeaders = function(page, pageSize){
         var toRange = function(){
           var from = (page - 1) * pageSize,
               to = from + pageSize - 1;
           return from + '-' + to;
         };
 
-        return function(xhr){
-          xhr.setRequestHeader('Range-unit', 'items');
-          xhr.setRequestHeader('Range', toRange());
-        };
+        return addHeaders({'Range-unit': 'items', 'Range': toRange()});
       },
 
       pageSize = m.prop(10),
@@ -48,7 +70,7 @@
       nameOptions = {url: '/' + name},
 
       getOptions = function(data, page, pageSize, options){
-        return _.extend({}, options, nameOptions, {method: 'GET', data: data, config: generateXhrConfig(page, pageSize)});
+        return _.extend({}, options, nameOptions, {method: 'GET', data: data, config: paginationHeaders(page, pageSize)});
       },
 
       querystring = function(filters, options){
@@ -106,25 +128,6 @@
       };
     };
 
-    postgrest.requestWithToken = function(options){
-      return m.postgrest.authenticate().then(function(){
-        var config = _.isFunction(options.config) ? _.compose(options.config, xhrConfig) : xhrConfig;
-        return m.postgrest.request(_.extend(options, {config: config}));
-      });
-    };
-
-    postgrest.authenticate = function(){
-      var deferred = m.deferred();
-      if(token()){
-        deferred.resolve({token: token()});
-      }
-      else{
-        return m.request(authenticationOptions).then(function(data){
-          token(data.token);
-        }, postgrest.onAuthFailure());
-      }
-      return deferred.promise;
-    };
     return postgrest;
   };
 
