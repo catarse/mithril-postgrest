@@ -32,7 +32,8 @@
     localStorage.removeItem('postgrest.token');
   };
 
-  postgrest.loader = function(defaultState, requestFunction, options){
+  postgrest.loader = function(options, requestFunction, defaultState){
+    var defaultState = defaultState || false;
     var loader = m.prop(defaultState), d = m.deferred();
     loader.load = function(){
       loader(true);
@@ -49,6 +50,10 @@
     };
     return loader;
   };
+
+  postgrest.loaderWithToken = function(options, defaultState){
+    return postgrest.loader(options, postgrest.requestWithToken, defaultState);
+  }
 
   postgrest.init = function(apiPrefix, authenticationOptions){
     postgrest.onAuthFailure = m.prop(function(){});
