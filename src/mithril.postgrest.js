@@ -13,7 +13,7 @@
     return token ? localStorage.setItem('postgrest.token', token) : localStorage.getItem('postgrest.token');
   },
 
-  mergeConfig = function(config, options){ 
+  mergeConfig = function(config, options){
     return options && _.isFunction(options.config) ? _.compose(options.config, config) : config;
   },
 
@@ -37,14 +37,16 @@
     var loader = m.prop(defaultState), d = m.deferred();
     loader.load = function(){
       loader(true);
+      m.redraw();
+      m.startComputation();
       requestFunction(_.extend({}, options, {background: true})).then(function(data){
         loader(false);
         d.resolve(data);
-        m.redraw();
+        m.endComputation();
       }, function(error){
         loader(false);
         d.reject(error);
-        m.redraw();
+        m.endComputation();
       });
       return d.promise;
     };
@@ -112,9 +114,9 @@
 
       postOptions = function(attributes, options){
         return _.extend(
-          {}, 
-          options, 
-          nameOptions, 
+          {},
+          options,
+          nameOptions,
           {method: 'POST', data: attributes, config: mergeConfig(addRepresentationHeader, options)}
         );
       },
@@ -125,11 +127,11 @@
 
       patchOptions = function(filters, attributes, options){
         return querystring(
-          filters, 
+          filters,
           _.extend(
-            {}, 
-            options, 
-            nameOptions, 
+            {},
+            options,
+            nameOptions,
             {method: 'PATCH', data: attributes, config: mergeConfig(addRepresentationHeader, options)})
         );
       },
@@ -154,7 +156,7 @@
         patch:            _.compose(postgrest.request, patchOptions),
         post:             _.compose(postgrest.request, postOptions),
         deleteRequest:    _.compose(postgrest.request, deleteOptions),
-        getPageWithToken: _.compose(postgrest.requestWithToken, getPageOptions), 
+        getPageWithToken: _.compose(postgrest.requestWithToken, getPageOptions),
         getRowWithToken:  _.compose(postgrest.requestWithToken, getRowOptions),
         patchWithToken:   _.compose(postgrest.requestWithToken, patchOptions),
         postWithToken:    _.compose(postgrest.requestWithToken, postOptions),
