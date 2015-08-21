@@ -25,12 +25,12 @@
     }, postgrest.loader = function(options, requestFunction, defaultState) {
         var defaultState = defaultState || !1, loader = m.prop(defaultState), d = m.deferred();
         return loader.load = function() {
-            return loader(!0), requestFunction(_.extend({}, options, {
+            return loader(!0), m.redraw(), m.startComputation(), requestFunction(_.extend({}, options, {
                 background: !0
             })).then(function(data) {
-                loader(!1), d.resolve(data), m.redraw();
+                loader(!1), d.resolve(data), m.endComputation();
             }, function(error) {
-                loader(!1), d.reject(error), m.redraw();
+                loader(!1), d.reject(error), m.endComputation();
             }), d.promise;
         }, loader;
     }, postgrest.loaderWithToken = function(options, defaultState) {
