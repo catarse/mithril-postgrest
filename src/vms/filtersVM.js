@@ -39,7 +39,7 @@
           if(attr !== 'order'){
             var operator = attributes[attr];
 
-            if(_.isFunction(getter) && !getter()){ return memo; }
+            if(_.isFunction(getter.toFilter) && !getter.toFilter()){ return memo; }
 
             // Bellow we use different formatting rules for the value depending on the operator
             // These rules are used regardless of the toFilter function,

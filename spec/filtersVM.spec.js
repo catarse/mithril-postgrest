@@ -45,13 +45,19 @@ describe("m.postgrest.filtersVM", function(){
     expect(vm.parameters()).toEqual({})
   });
 
-  it("the parameters function should skip blank values", function() {
-    vm.id('');
-    vm.name('');
-    vm.value['lte']('');
-    vm.value['gte']('');
-    vm.order('');
-    expect(vm.parameters()).toEqual({})
+  it("should skip when toFilter returns blank", function() {
+    var returnBlank = function(){ return ''; };
+    vm.id(7);
+    vm.name('foo');
+    vm.value['gte'](1);
+    vm.value['lte'](2);
+    vm.full_text(' foo  bar qux ');
+    vm.id.toFilter = returnBlank;
+    vm.name.toFilter = returnBlank;
+    vm.value.lte.toFilter = returnBlank;
+    vm.value.gte.toFilter = returnBlank;
+    vm.full_text.toFilter = returnBlank;
+    expect(vm.parameters()).toEqual({});
   });
 });
 

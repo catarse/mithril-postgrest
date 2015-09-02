@@ -2,7 +2,7 @@
     A Mithril.js plugin to authenticate requests against PostgREST
     Copyright (c) 2007 - 2015 Diogo Biazus
     Licensed under the MIT license 
-    Version: 1.1.0
+    Version: 1.1.1
 */
 !function(factory) {
     "object" == typeof exports ? factory(require("mithril"), require("underscore"), require("node-localstorage")) : factory(window.m, window._, window.localStorage);
@@ -142,7 +142,7 @@
             return _.reduce(getters, function(memo, getter, attr) {
                 if ("order" !== attr) {
                     var operator = attributes[attr];
-                    if (_.isFunction(getter) && !getter()) return memo;
+                    if (_.isFunction(getter.toFilter) && !getter.toFilter()) return memo;
                     if ("ilike" === operator || "like" === operator) memo[attr] = operator + ".*" + getter.toFilter() + "*"; else if ("@@" === operator) memo[attr] = operator + "." + getter.toFilter().replace(/\s+/g, "&"); else if ("between" === operator) {
                         if (!getter.lte.toFilter() && !getter.gte.toFilter()) return memo;
                         memo[attr] = [], getter.gte() && memo[attr].push("gte." + getter.gte.toFilter()), 
