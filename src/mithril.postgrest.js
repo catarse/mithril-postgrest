@@ -136,8 +136,8 @@
         );
       },
 
-      getPageOptions = function(page, data, options){
-        return getOptions(data, page, pageSize(), options);
+      getPageOptions = function(data, page, options){
+        return getOptions(data, (page || 1), pageSize(), options);
       },
 
       getRowOptions = function(data, options){

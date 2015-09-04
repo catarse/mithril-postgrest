@@ -84,7 +84,7 @@ describe("m.postgrest.model", function(){
 
     describe("#getPageWithToken", function() {
       beforeEach(function(){
-        model.getPageWithToken(1);
+        model.getPageWithToken();
       });
 
       it("should call m.postgrest.requestWithToken with model name", function() {
@@ -94,7 +94,7 @@ describe("m.postgrest.model", function(){
 
     describe("#getPage", function() {
       beforeEach(function(){
-        model.getPage(1, {filter: 1}, {extra_options: 2});
+        model.getPage({filter: 1}, 1, {extra_options: 2});
       });
 
       it("should call m.postgrest.request with model name", function() {

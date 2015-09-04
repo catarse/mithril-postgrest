@@ -34,7 +34,7 @@
         }
       };
       isLoading(true);
-      pageRequest(page(), filters(), {background: true, extract: getTotal}).then(function(data){
+      pageRequest(filters(), page(), {background: true, extract: getTotal}).then(function(data){
         collection(_.union(collection(), data));
         isLoading(false);
         d.resolve(collection());
