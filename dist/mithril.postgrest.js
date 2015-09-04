@@ -2,7 +2,7 @@
     A Mithril.js plugin to authenticate requests against PostgREST
     Copyright (c) 2007 - 2015 Diogo Biazus
     Licensed under the MIT license 
-    Version: 1.1.2
+    Version: 1.1.3
 */
 !function(factory) {
     "object" == typeof exports ? factory(require("mithril"), require("underscore"), require("node-localstorage")) : factory(window.m, window._, window.localStorage);
@@ -96,8 +96,8 @@
                     data: attributes,
                     config: mergeConfig(addRepresentationHeader, options)
                 }));
-            }, getPageOptions = function(page, data, options) {
-                return getOptions(data, page, pageSize(), options);
+            }, getPageOptions = function(data, page, options) {
+                return getOptions(data, page || 1, pageSize(), options);
             }, getRowOptions = function(data, options) {
                 return getOptions(data, 1, 1, options);
             };
@@ -193,7 +193,7 @@
                     });
                 }
             };
-            return isLoading(!0), pageRequest(page(), filters(), {
+            return isLoading(!0), pageRequest(filters(), page(), {
                 background: !0,
                 extract: getTotal
             }).then(function(data) {
