@@ -1,6 +1,6 @@
 {
   "name": "mithril.postgrest",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "author": "Diogo Biazus",
   "description": "A Mithril.js plugin to authenticate requests against PostgREST",
   "devDependencies": {
