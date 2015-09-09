@@ -1,15 +1,15 @@
-(function (factory) {
-    if (typeof exports === 'object') {
-        // Node/CommonJS
-        factory(require('mithril'), require('underscore'), require('node-localstorage'));
-    } else {
-        // Browser globals
-        factory(window.m, window._, window.localStorage);
-    }
-}(function (m, _, localStorage) {
+(function(factory) {
+  if (typeof exports === 'object') {
+    // Node/CommonJS
+    factory(require('mithril'), require('underscore'), require('node-localstorage'));
+  } else {
+    // Browser globals
+    factory(window.m, window._, window.localStorage);
+  }
+}(function(m, _, localStorage) {
   var postgrest = {},
 
-  token = function(token){
+    token = function(token){
     return token ? localStorage.setItem('postgrest.token', token) : localStorage.getItem('postgrest.token');
   },
 
@@ -55,7 +55,7 @@
 
   postgrest.loaderWithToken = function(options, defaultState){
     return postgrest.loader(options, postgrest.requestWithToken, defaultState);
-  }
+  };
 
   postgrest.init = function(apiPrefix, authenticationOptions){
     postgrest.onAuthFailure = m.prop(function(){});
@@ -66,10 +66,10 @@
 
     postgrest.authenticate = function(){
       var deferred = m.deferred();
-      if(token()){
+      if (token()){
         deferred.resolve({token: token()});
       }
-      else{
+      else {
         return m.request(authenticationOptions).then(function(data){
           token(data.token);
         }, postgrest.onAuthFailure());
@@ -88,7 +88,7 @@
       var addPaginationHeaders = function(page, pageSize){
         var toRange = function(){
           var from = (page - 1) * pageSize,
-              to = from + pageSize - 1;
+            to = from + pageSize - 1;
           return from + '-' + to;
         };
 
@@ -97,9 +97,9 @@
 
       pageSize = m.prop(10),
 
-      nameOptions = {url: '/' + name},
+        nameOptions = {url: '/' + name},
 
-      getOptions = function(data, page, pageSize, options){
+        getOptions = function(data, page, pageSize, options){
         return _.extend({}, options, nameOptions, {method: 'GET', data: data, config: mergeConfig(addPaginationHeaders(page, pageSize), options)});
       },
 
