@@ -49,20 +49,27 @@ var users = m.postgrest.model('users');
 ```
 
 will generate an object with functions to operate the ```/users``` endpoint.
-
-The model will have the following methods:
-
- * getPage(page, filters) - gets a page of data issueing a GET request to the endpoint.
- * getPageWithToken(page, filters) - gets a page of data issueing a GET request to the endpoint using the JWT authentication.
- * getRow(filters)
- * getRowWithToken(filters)
- * patch(filters, data)
- * patchWithToken(filters, data)
- * post(data)
- * postWithToken(data)
- * delete(filters)
- * deleteWithToken(filters)
- * options()
+To get one record from the users table you could use:
+```javascript
+var users = m.postgrest.model('users');
+users.getRow({id: 'eq.1'}).then(function(row){
+	console.log('fecthed:', row);
+});
+```
+Now if you don't want to fetch data as anonymous, and prefer to use your authentication token:
+```javascript
+var users = m.postgrest.model('users');
+users.getRowWithToken({id: 'eq.1'}).then(function(row){
+	console.log('fecthed:', row);
+});
+```
+When updating, the model always fetches the updated record by default:
+```javascript
+var users = m.postgrest.model('users');
+users.patchWithToken({id: 'eq.1'}, {name: 'new name'}).then(function(row){
+	console.log('updated:', row);
+});
+```
 
 The model will have the following property once it is created:
 
@@ -80,14 +87,14 @@ You can use the function:
 As in the example:
 
 ```javascript
-var filters = m.postgrest.filtersVM({id: 'eq', name: 'ilike'});
-filters.id(7);
-filters.name('foo');
-filters.order({name: 'desc'});
-filters.parameters();
+var filters = m.postgrest.filtersVM({id: 'eq'});
+var users = m.postgrest.model('users');
+users.getPage(filters.id(7).parameters()).then(function(data){
+	console.log('fetched:', data);
+});
 ```
 
-The ```filters.parameters()``` will return an object that can be fed directly to a request with filters and the order by.
+The ```filters.parameters()``` will return an object that can be fed directly to a request with filters and the order by. 
 
 If you want to apply any transformation to the value before it being fed to the ```parameters()``` function you have a ```toFilter``` function
 that has been created in each property for you. So let's say we want to remove diacriticts from the name before sending the string:
