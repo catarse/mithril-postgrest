@@ -9,11 +9,19 @@
   }
 }(function(m, _) {
   m.postgrest.filtersVM = function(attributes){
-    var filter = function(){
-      var prop = m.prop('');
+    var newVM = {},
+    filter = function(){
+      var prop = m.prop(''),
+      filterProp = function(value){
+        if(value){
+          prop(value);
+          return newVM;
+        }
+        return prop();
+      };
       // Just so we can have a default to_filter and avoid if _.isFunction calls
-      prop.toFilter = function(){ return (prop() || '').toString().trim(); };
-      return prop;
+      filterProp.toFilter = function(){ return (filterProp() || '').toString().trim(); };
+      return filterProp;
     },
 
     getters = _.reduce(
@@ -91,6 +99,6 @@
 
     };
 
-    return _.extend({}, getters, {parameters: parameters, parametersWithoutOrder: parametersWithoutOrder});
+    return _.extend(newVM, getters, {parameters: parameters, parametersWithoutOrder: parametersWithoutOrder});
   };
 }));

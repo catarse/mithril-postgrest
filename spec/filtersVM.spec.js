@@ -19,12 +19,7 @@ describe("m.postgrest.filtersVM", function(){
   });
 
   it("the parameters function should build an object for the request using PostgREST syntax", function() {
-    vm.id(7);
-    vm.name('foo');
-    vm.value['gte'](1);
-    vm.value['lte'](2);
-    vm.full_text(' foo  bar qux ');
-    vm.order({name: 'asc', id: 'desc'});
+    vm.id(7).name('foo').value.gte(1).value.lte(2).full_text(' foo  bar qux ').order({name: 'asc', id: 'desc'});
     expect(vm.parameters()).toEqual({id: 'eq.7', name: 'ilike.*foo*', order: 'name.asc,id.desc', value: ['gte.1', 'lte.2'], full_text: '@@.foo&bar&qux'})
   });
 
