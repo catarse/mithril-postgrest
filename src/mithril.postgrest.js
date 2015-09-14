@@ -58,8 +58,6 @@
   };
 
   postgrest.init = function(apiPrefix, authenticationOptions){
-    postgrest.onAuthFailure = m.prop(function(){});
-
     postgrest.request = function(options){
       return m.request(_.extend({}, options, {url: apiPrefix + options.url}));
     };
@@ -70,18 +68,22 @@
         deferred.resolve({token: token()});
       }
       else {
-        return m.request(authenticationOptions).then(function(data){
+        m.request(authenticationOptions).then(function(data){
           token(data.token);
-        }, postgrest.onAuthFailure());
+        }, function(data){ deferred.reject(data); });
       }
       return deferred.promise;
     };
 
     postgrest.requestWithToken = function(options){
-      var addAuthorizationHeader = addHeaders({'Authorization': 'Bearer ' + token()});
-      return m.postgrest.authenticate().then(function(){
-        return m.postgrest.request(_.extend({}, options, {config: mergeConfig(addAuthorizationHeader, options)}));
-      });
+      var addAuthorizationHeader = addHeaders({'Authorization': 'Bearer ' + token()}),
+      requestWithDefaultOptions = function(aditionalOptions){
+        return _.compose(m.postgrest.request, function(){ return _.extend({}, options, aditionalOptions); });
+      };
+      return m.postgrest.authenticate().then(
+        requestWithDefaultOptions({config: mergeConfig(addAuthorizationHeader, options)}),
+        requestWithDefaultOptions()
+      );
     };
 
     postgrest.model = function(name){

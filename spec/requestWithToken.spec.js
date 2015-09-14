@@ -6,9 +6,6 @@ describe("m.postgrest.requestWithToken", function(){
     m.postgrest.reset();
     localStorage.setItem("postgrest.token", token);
     m.postgrest.init(apiPrefix, {method: "GET", url: authentication_endpoint});
-    var then = function(callback){
-      callback({token: token});
-    };
     spyOn(m.postgrest, 'authenticate').and.callThrough();
     spyOn(m, 'request').and.callThrough();
   });
@@ -16,6 +13,21 @@ describe("m.postgrest.requestWithToken", function(){
   it("should call authenticate", function(){
     m.postgrest.requestWithToken({method: "GET", url: "pages.json"});
     expect(m.postgrest.authenticate).toHaveBeenCalled();
+  });
+
+  describe("when authentication fails", function(){
+    it("should call authenticate and fallback to request", function(){
+      jasmine.Ajax.stubRequest('/authentication_endpoint').andReturn({
+        'responseText' : JSON.stringify({}),
+        status: 500
+      });
+      m.postgrest.reset();
+      m.postgrest.requestWithToken({method: "GET", url: "pages.json"});
+      lastRequest = jasmine.Ajax.requests.mostRecent();
+      expect(m.postgrest.authenticate).toHaveBeenCalled();
+      expect(lastRequest.url).toEqual(apiPrefix + 'pages.json');
+      expect(lastRequest.requestHeaders.Authorization).toEqual(undefined);
+    });
   });
 
   describe("when I try to configure a custom header", function(){
