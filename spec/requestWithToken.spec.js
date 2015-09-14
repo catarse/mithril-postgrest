@@ -1,10 +1,6 @@
 describe("m.postgrest.requestWithToken", function(){
-  var apiPrefix = "http://api.foo.com/v1/";
-  var token = "authentication token";
-  var authentication_endpoint = "/authentication_endpoint"
-  var xhr = {
-    setRequestHeader: function(){}
-  };
+  var apiPrefix = "http://api.foo.com/v1/", token = "authentication token", 
+    authentication_endpoint = "/authentication_endpoint", lastRequest;
 
   beforeEach(function(){
     m.postgrest.reset();
@@ -13,14 +9,8 @@ describe("m.postgrest.requestWithToken", function(){
     var then = function(callback){
       callback({token: token});
     };
-    spyOn(xhr, 'setRequestHeader');
     spyOn(m.postgrest, 'authenticate').and.callThrough();
-    spyOn(m, 'request').and.callFake(function(options){
-      if(_.isFunction(options.config)){
-        options.config(xhr);
-      }
-      return {then: then};
-    });
+    spyOn(m, 'request').and.callThrough();
   });
 
   it("should call authenticate", function(){
@@ -35,15 +25,15 @@ describe("m.postgrest.requestWithToken", function(){
       };
       
       m.postgrest.requestWithToken({method: "GET", url: "pages.json", config: xhrConfig});
+      lastRequest = jasmine.Ajax.requests.mostRecent();
     });
 
     it("should call m.request and our custom xhrConfig", function(){
-      expect(m.request).toHaveBeenCalledWith({method: "GET", url: apiPrefix + "pages.json", config: jasmine.any(Function)});
-      expect(xhr.setRequestHeader).toHaveBeenCalledWith("Content-Type", "application/json");
+      expect(lastRequest.requestHeaders['Content-Type']).toEqual('application/json');
     });
 
     it("should call m.request using API prefix and authorization header", function(){
-      expect(xhr.setRequestHeader).toHaveBeenCalledWith("Authorization", "Bearer " + token);
+      expect(lastRequest.requestHeaders.Authorization).toEqual('Bearer ' + token);
     });
   });
 
