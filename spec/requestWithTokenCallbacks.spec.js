@@ -7,7 +7,6 @@ describe("m.postgrest.requestWithToken callbacks order", function(){
       requestTime = 5;
 
   beforeEach(function(){
-    m.postgrest.reset();
     m.postgrest.init(apiPrefix, {method: "GET", url: authentication_endpoint});
 
     spyOn(m.postgrest, 'authenticate').and.callFake(function(){

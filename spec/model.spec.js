@@ -8,7 +8,6 @@ describe("m.postgrest.model", function(){
   model = null;
 
   beforeEach(function(){
-    m.postgrest.reset();
     localStorage.setItem("postgrest.token", token);
     m.postgrest.init(apiPrefix, {method: "GET", url: authentication_endpoint});
     spyOn(xhr, "setRequestHeader");

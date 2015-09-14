@@ -1,17 +1,15 @@
 (function(factory) {
   if (typeof exports === 'object') {
     // Node/CommonJS
-    factory(require('mithril'), require('underscore'), require('node-localstorage'));
+    factory(require('mithril'), require('underscore'));
   } else {
     // Browser globals
-    factory(window.m, window._, window.localStorage);
+    factory(window.m, window._);
   }
-}(function(m, _, localStorage) {
+}(function(m, _) {
   var postgrest = {},
 
-    token = function(token){
-    return token ? localStorage.setItem('postgrest.token', token) : localStorage.getItem('postgrest.token');
-  },
+  token = m.prop(),
 
   mergeConfig = function(config, options){
     return options && _.isFunction(options.config) ? _.compose(options.config, config) : config;
@@ -28,9 +26,7 @@
 
   addRepresentationHeader = addHeaders({'Prefer': 'return=representation'});
 
-  postgrest.reset = function(){
-    localStorage.removeItem('postgrest.token');
-  };
+  postgrest.token = token;
 
   postgrest.loader = function(options, requestFunction, defaultState){
     var defaultState = defaultState || false;
@@ -58,8 +54,6 @@
   };
 
   postgrest.init = function(apiPrefix, authenticationOptions){
-    postgrest.onAuthFailure = m.prop(function(){});
-
     postgrest.request = function(options){
       return m.request(_.extend({}, options, {url: apiPrefix + options.url}));
     };
@@ -70,18 +64,22 @@
         deferred.resolve({token: token()});
       }
       else {
-        return m.request(authenticationOptions).then(function(data){
+        m.request(authenticationOptions).then(function(data){
           token(data.token);
-        }, postgrest.onAuthFailure());
+        }, function(data){ deferred.reject(data); });
       }
       return deferred.promise;
     };
 
     postgrest.requestWithToken = function(options){
-      var addAuthorizationHeader = addHeaders({'Authorization': 'Bearer ' + token()});
-      return m.postgrest.authenticate().then(function(){
-        return m.postgrest.request(_.extend({}, options, {config: mergeConfig(addAuthorizationHeader, options)}));
-      });
+      var addAuthorizationHeader = addHeaders({'Authorization': 'Bearer ' + token()}),
+      requestWithDefaultOptions = function(aditionalOptions){
+        return _.compose(m.postgrest.request, function(){ return _.extend({}, options, aditionalOptions); });
+      };
+      return m.postgrest.authenticate().then(
+        requestWithDefaultOptions({config: mergeConfig(addAuthorizationHeader, options)}),
+        requestWithDefaultOptions()
+      );
     };
 
     postgrest.model = function(name){

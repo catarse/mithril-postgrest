@@ -1,14 +1,14 @@
 describe("m.postgrest.authenticate", function(){
   var token = "authentication token";
-  var authentication_endpoint = "/authentication_endpoint"
+  var authentication_endpoint = "/authentication_endpoint";
 
   beforeEach(function(){
-    m.postgrest.reset();
+    m.postgrest.token(undefined);
+    jasmine.Ajax.stubRequest(authentication_endpoint).andReturn({
+      'responseText' : JSON.stringify({token: token})
+    });
     m.postgrest.init("", {method: "GET", url: authentication_endpoint});
-    var then = function(callback){
-      callback({token: token});
-    };
-    spyOn(m, 'request').and.returnValue({then: then});
+    spyOn(m, 'request').and.callThrough();
   });
 
   describe("when token is not in localStorage", function(){
@@ -16,18 +16,14 @@ describe("m.postgrest.authenticate", function(){
       m.postgrest.authenticate();
     });
 
-    it("should store the token in localStorage", function(){
-      expect(localStorage.getItem("postgrest.token")).toEqual(token);
-    });
-
-    it("should return a m.request call with the options passed", function(){
-      expect(m.request).toHaveBeenCalledWith({method: "GET", url: authentication_endpoint});
+    it("should store the token", function(){
+      expect(m.postgrest.token()).toEqual(token);
     });
   });
 
-  describe("when token is in localStorage", function(){
+  describe("when token is present", function(){
     beforeEach(function(){
-      localStorage.setItem("postgrest.token", token);
+      m.postgrest.token(token);
     });
 
     it("should return a promisse with the token in the data parameter", function(){

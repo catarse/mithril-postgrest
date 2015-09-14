@@ -14,7 +14,6 @@
     "gulp-uglify": "^1.4.0",
     "gulp-util": "^3.0.6",
     "jasmine-expect": "^2.0.0-beta1",
-    "node-localstorage": "0.5.x",
     "jshint-stylish": "^2.0.1",
     "karma": "^0.13.9",
     "karma-jasmine": "^0.3.6",
