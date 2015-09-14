@@ -13,7 +13,7 @@
     filter = function(){
       var prop = m.prop(''),
       filterProp = function(value){
-        if(arguments.length > 0){
+        if (arguments.length > 0){
           prop(value);
           return newVM;
         }
