@@ -14,6 +14,21 @@ describe("m.postgrest.requestWithToken", function(){
     expect(m.postgrest.authenticate).toHaveBeenCalled();
   });
 
+  describe("when token is undefined and authentication succeeds", function(){
+    it("should call authenticate and store token", function(){
+      jasmine.Ajax.stubRequest('/authentication_endpoint').andReturn({
+        'responseText' : JSON.stringify({token: token}),
+        status: 200
+      });
+      m.postgrest.token(undefined);
+      m.postgrest.requestWithToken({method: "GET", url: "pages.json"});
+      lastRequest = jasmine.Ajax.requests.mostRecent();
+      expect(m.postgrest.authenticate).toHaveBeenCalled();
+      expect(lastRequest.url).toEqual(apiPrefix + 'pages.json');
+      expect(lastRequest.requestHeaders.Authorization).toEqual('Bearer ' + token);
+    });
+  });
+
   describe("when authentication fails", function(){
     it("should call authenticate and fallback to request", function(){
       jasmine.Ajax.stubRequest('/authentication_endpoint').andReturn({

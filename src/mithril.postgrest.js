@@ -66,19 +66,23 @@
       else {
         m.request(authenticationOptions).then(function(data){
           token(data.token);
+          deferred.resolve({token: token()});
         }, function(data){ deferred.reject(data); });
       }
       return deferred.promise;
     };
 
     postgrest.requestWithToken = function(options){
-      var addAuthorizationHeader = addHeaders({'Authorization': 'Bearer ' + token()}),
-      requestWithDefaultOptions = function(aditionalOptions){
-        return _.compose(m.postgrest.request, function(){ return _.extend({}, options, aditionalOptions); });
+      var addAuthorizationHeader = function(){
+        return mergeConfig(addHeaders({'Authorization': 'Bearer ' + token()}), options);
       };
       return m.postgrest.authenticate().then(
-        requestWithDefaultOptions({config: mergeConfig(addAuthorizationHeader, options)}),
-        requestWithDefaultOptions()
+        function(){
+          return m.postgrest.request(_.extend({}, options, {config: addAuthorizationHeader()}));
+        },
+        function(){
+          return m.postgrest.request(_.extend({}, options));
+        }
       );
     };
 
