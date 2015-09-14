@@ -1,17 +1,15 @@
 (function(factory) {
   if (typeof exports === 'object') {
     // Node/CommonJS
-    factory(require('mithril'), require('underscore'), require('node-localstorage'));
+    factory(require('mithril'), require('underscore'));
   } else {
     // Browser globals
-    factory(window.m, window._, window.localStorage);
+    factory(window.m, window._);
   }
-}(function(m, _, localStorage) {
+}(function(m, _) {
   var postgrest = {},
 
-    token = function(token){
-    return token ? localStorage.setItem('postgrest.token', token) : localStorage.getItem('postgrest.token');
-  },
+  token = m.prop(),
 
   mergeConfig = function(config, options){
     return options && _.isFunction(options.config) ? _.compose(options.config, config) : config;
@@ -28,9 +26,7 @@
 
   addRepresentationHeader = addHeaders({'Prefer': 'return=representation'});
 
-  postgrest.reset = function(){
-    localStorage.removeItem('postgrest.token');
-  };
+  postgrest.token = token;
 
   postgrest.loader = function(options, requestFunction, defaultState){
     var defaultState = defaultState || false;

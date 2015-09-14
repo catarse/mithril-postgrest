@@ -3,8 +3,7 @@ describe("m.postgrest.requestWithToken", function(){
     authentication_endpoint = "/authentication_endpoint", lastRequest;
 
   beforeEach(function(){
-    m.postgrest.reset();
-    localStorage.setItem("postgrest.token", token);
+    m.postgrest.token(token);
     m.postgrest.init(apiPrefix, {method: "GET", url: authentication_endpoint});
     spyOn(m.postgrest, 'authenticate').and.callThrough();
     spyOn(m, 'request').and.callThrough();
@@ -21,7 +20,7 @@ describe("m.postgrest.requestWithToken", function(){
         'responseText' : JSON.stringify({}),
         status: 500
       });
-      m.postgrest.reset();
+      m.postgrest.token(undefined);
       m.postgrest.requestWithToken({method: "GET", url: "pages.json"});
       lastRequest = jasmine.Ajax.requests.mostRecent();
       expect(m.postgrest.authenticate).toHaveBeenCalled();
