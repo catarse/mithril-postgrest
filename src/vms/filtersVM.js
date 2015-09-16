@@ -20,7 +20,9 @@
         return prop();
       };
       // Just so we can have a default to_filter and avoid if _.isFunction calls
-      filterProp.toFilter = function(){ return (filterProp() || '').toString().trim(); };
+      filterProp.toFilter = function(){
+        return _.isString(filterProp()) ? filterProp().trim() : filterProp();
+      };
       return filterProp;
     },
 
@@ -48,7 +50,7 @@
           if (attr !== 'order'){
             var operator = attributes[attr];
 
-            if (_.isFunction(getter.toFilter) && !getter.toFilter()){ return memo; }
+            if (_.isFunction(getter.toFilter) && (getter.toFilter() === undefined || getter.toFilter() === '')){ return memo; }
 
             // Bellow we use different formatting rules for the value depending on the operator
             // These rules are used regardless of the toFilter function,
