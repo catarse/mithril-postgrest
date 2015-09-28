@@ -4,7 +4,6 @@
 What this library is supposed to do:
   
   * Help you authenticating in a [PostgREST](https://github.com/begriffs/postgrest) server.
-  * Keep some session information in the browser localStorage.
   * Provide wrappers arround the mithril request function to use JWT.
   * Provide a constructor for objects that will interact with PostgREST endpoints
   * Provide some helpers to build some useful View-Model objects.
@@ -32,13 +31,9 @@ This will create three functions:
 
 Both request functions are just proxies for mithril's ```m.request``` and will return in the same fashion.
 
-However, the ```m.postgrest.requestWithToken``` stores the JWT for api authentication in the localStorage key "postgrest.token".
+However, the ```m.postgrest.requestWithToken``` stores the JWT for api authentication in a public getter: ```m.postgrest.token```.
 
-To logout of the API and erase the token from the browser localStorage you should call:
-
-```javascript
-m.postgrest.reset();
-```
+This token can be manipulated to implement session storage for the authentication token.
 
 ### Models
 To generate a model you should call the model function passing its name. The name of the model should be the name of the endpoint in the PostgREST server.
