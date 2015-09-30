@@ -87,6 +87,10 @@
 
     postgrest.model = (name) => {
       const addPaginationHeaders = (page, pageSize) => {
+        if (!pageSize) {
+          return;
+        }
+
         const toRange = () => {
           const from = (page - 1) * pageSize,
             to = from + pageSize - 1;
