@@ -1,5 +1,6 @@
 var gulp = require('gulp');
 var argv = require('yargs').argv;
+var babel = require('gulp-babel');
 var concat = require('gulp-concat');
 var jscs = require('gulp-jscs');
 var jshint = require('gulp-jshint');
@@ -8,8 +9,22 @@ var rename = require('gulp-rename');
 var uglify = require('gulp-uglify');
 var plumber = require('gulp-plumber');
 var Server = require('karma').Server;
+var flow = require('gulp-flowtype');
 
 var sources = ['src/**/*.js','src/vms/*.js'];
+
+gulp.task('typecheck', function() {
+  return gulp.src(sources)
+  .pipe(flow({
+    all: false,
+    weak: false,
+    declarations: './declarations',
+    killFlow: false,
+    beep: true,
+    abort: false
+  }));
+});
+
 /**
  * Run test once and exit
  */
@@ -30,7 +45,8 @@ gulp.task('dist', function(){
   gulp.src(sources)
   .pipe(plumber())
   .pipe(sourcemaps.init())
-    .pipe(concat('mithril.postgrest.js'))
+  .pipe(babel())
+  .pipe(concat('mithril.postgrest.js'))
   .pipe(sourcemaps.write())
   .pipe(gulp.dest('dist'))
   .pipe(uglify())

@@ -6,18 +6,18 @@
     // Browser globals
     factory(window.m, window._);
   }
-}(function(m, _) {
-  var postgrest = {},
+}((m, _) => {
+  let postgrest = {};
 
-  token = m.prop(),
+  const token = m.prop(),
 
-  mergeConfig = function(config, options){
+  mergeConfig = (config, options) => {
     return options && _.isFunction(options.config) ? _.compose(options.config, config) : config;
   },
 
-  addHeaders = function(headers){
-    return function(xhr){
-      _.each(headers, function(value, key){
+  addHeaders = (headers) => {
+    return (xhr) => {
+      _.each(headers, (value, key) => {
         xhr.setRequestHeader(key, value);
       });
       return xhr;
@@ -28,18 +28,17 @@
 
   postgrest.token = token;
 
-  postgrest.loader = function(options, requestFunction, defaultState){
-    var defaultState = defaultState || false;
-    var loader = m.prop(defaultState), d = m.deferred();
-    loader.load = function(){
+  postgrest.loader = (options, requestFunction, defaultState = false) => {
+    const loader = m.prop(defaultState), d = m.deferred();
+    loader.load = () => {
       loader(true);
       m.redraw();
       m.startComputation();
-      requestFunction(_.extend({}, options, {background: true})).then(function(data){
+      requestFunction(_.extend({}, options, {background: true})).then((data) => {
         loader(false);
         d.resolve(data);
         m.endComputation();
-      }, function(error){
+      }, (error) => {
         loader(false);
         d.reject(error);
         m.endComputation();
@@ -49,47 +48,51 @@
     return loader;
   };
 
-  postgrest.loaderWithToken = function(options, defaultState){
+  postgrest.loaderWithToken = (options, defaultState) => {
     return postgrest.loader(options, postgrest.requestWithToken, defaultState);
   };
 
-  postgrest.init = function(apiPrefix, authenticationOptions){
-    postgrest.request = function(options){
+  postgrest.init = (apiPrefix, authenticationOptions) => {
+    postgrest.request = (options) => {
       return m.request(_.extend({}, options, {url: apiPrefix + options.url}));
     };
 
-    postgrest.authenticate = function(){
-      var deferred = m.deferred();
+    postgrest.authenticate = () => {
+      const deferred = m.deferred();
       if (token()){
         deferred.resolve({token: token()});
       }
       else {
-        m.request(authenticationOptions).then(function(data){
+        m.request(authenticationOptions).then((data) => {
           token(data.token);
           deferred.resolve({token: token()});
-        }, function(data){ deferred.reject(data); });
+        }, (data) => { deferred.reject(data); });
       }
       return deferred.promise;
     };
 
-    postgrest.requestWithToken = function(options){
-      var addAuthorizationHeader = function(){
+    postgrest.requestWithToken = (options) => {
+      const addAuthorizationHeader = () => {
         return mergeConfig(addHeaders({'Authorization': 'Bearer ' + token()}), options);
       };
       return m.postgrest.authenticate().then(
-        function(){
+        () => {
           return m.postgrest.request(_.extend({}, options, {config: addAuthorizationHeader()}));
         },
-        function(){
+        () => {
           return m.postgrest.request(_.extend({}, options));
         }
       );
     };
 
-    postgrest.model = function(name){
-      var addPaginationHeaders = function(page, pageSize){
-        var toRange = function(){
-          var from = (page - 1) * pageSize,
+    postgrest.model = (name) => {
+      const addPaginationHeaders = (page, pageSize) => {
+        if (!pageSize) {
+          return;
+        }
+
+        const toRange = () => {
+          const from = (page - 1) * pageSize,
             to = from + pageSize - 1;
           return from + '-' + to;
         };
@@ -99,22 +102,22 @@
 
       pageSize = m.prop(10),
 
-        nameOptions = {url: '/' + name},
+      nameOptions = {url: '/' + name},
 
-        getOptions = function(data, page, pageSize, options){
+      getOptions = (data, page, pageSize, options) => {
         return _.extend({}, options, nameOptions, {method: 'GET', data: data, config: mergeConfig(addPaginationHeaders(page, pageSize), options)});
       },
 
-      querystring = function(filters, options){
+      querystring = (filters, options) => {
         options.url += '?' + m.route.buildQueryString(filters);
         return options;
       },
 
-      options = function(options){
+      options = (options) => {
         return m.postgrest.request(_.extend({}, options, nameOptions, {method: 'OPTIONS'}));
       },
 
-      postOptions = function(attributes, options){
+      postOptions = (attributes, options) => {
         return _.extend(
           {},
           options,
@@ -123,11 +126,11 @@
         );
       },
 
-      deleteOptions = function(filters, options){
+      deleteOptions = (filters, options) => {
         return querystring(filters, _.extend({}, options, nameOptions, {method: 'DELETE'}));
       },
 
-      patchOptions = function(filters, attributes, options){
+      patchOptions = (filters, attributes, options) => {
         return querystring(
           filters,
           _.extend(
@@ -138,11 +141,11 @@
         );
       },
 
-      getPageOptions = function(data, page, options){
+      getPageOptions = (data, page, options) => {
         return getOptions(data, (page || 1), pageSize(), options);
       },
 
-      getRowOptions = function(data, options){
+      getRowOptions = (data, options) => {
         return getOptions(data, 1, 1, options);
       };
 

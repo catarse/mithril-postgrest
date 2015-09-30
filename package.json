@@ -26,6 +26,9 @@
     "test": "gulp test"
   },
   "dependencies": {
+    "gulp-babel": "^5.2.1",
+    "gulp-flowtype": "^0.4.8",
+    "karma-babel-preprocessor": "^5.2.2",
     "underscore": "^1.8.3"
   }
 }

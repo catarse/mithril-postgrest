@@ -7,12 +7,12 @@
     // Browser globals
     factory(window.m, window._);
   }
-}(function(m, _) {
-  m.postgrest.filtersVM = function(attributes){
+}((m, _) => {
+  m.postgrest.filtersVM = (attributes) => {
     var newVM = {},
-    filter = function(){
+    filter = () => {
       var prop = m.prop(''),
-      filterProp = function(value){
+      filterProp = function(value) {
         if (arguments.length > 0){
           prop(value);
           return newVM;
@@ -20,7 +20,7 @@
         return prop();
       };
       // Just so we can have a default to_filter and avoid if _.isFunction calls
-      filterProp.toFilter = function(){
+      filterProp.toFilter = () => {
         return _.isString(filterProp()) ? filterProp().trim() : filterProp();
       };
       return filterProp;
@@ -28,7 +28,7 @@
 
     getters = _.reduce(
       attributes,
-      function(memo, operator, attr){
+      (memo, operator, attr) => {
         // The operator between is implemented with two properties, one for greater than value and another for lesser than value.
         // Both properties are sent in the queurystring with the same name,
         // that's why we need the special case here, so we can use a simple map as argument to filtersVM.
@@ -43,10 +43,10 @@
       {order: m.prop()}
     ),
 
-    parametersWithoutOrder = function(){
+    parametersWithoutOrder = () => {
       return _.reduce(
         getters,
-        function(memo, getter, attr){
+        (memo, getter, attr) => {
           if (attr !== 'order'){
             var operator = attributes[attr];
 
@@ -81,13 +81,13 @@
       );
     },
 
-    parameters = function(){
+    parameters = () => {
       // The order parameters have a special syntax (just like an order by SQL clause)
       // https://github.com/begriffs/postgrest/wiki/Routing#filtering-and-ordering
-      var order = function(){
+      var order = () => {
         return getters.order() && _.reduce(
           getters.order(),
-          function(memo, direction, attr){
+          (memo, direction, attr) => {
             memo.push(attr + '.' + direction);
             return memo;
           },
