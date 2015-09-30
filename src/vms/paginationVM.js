@@ -34,7 +34,7 @@
         }
       };
       isLoading(true);
-      pageRequest(filters(), page(), {background: true, extract: getTotal}).then((data) => {
+      pageRequest(filters(), page(), {background: true, extract: getTotal}, {'Prefer': 'count=exact'}).then((data) => {
         collection(_.union(collection(), data));
         isLoading(false);
         d.resolve(collection());

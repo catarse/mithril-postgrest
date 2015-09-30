@@ -2,6 +2,7 @@ describe("m.postgrest.paginationVM", function(){
   var vm = null;
   var apiPrefix = "http://api.foo.com/v1";
   var model = null;
+  var header = {'Prefer': 'count=exact'};
 
   beforeEach(function(){
     m.postgrest.init(apiPrefix);
@@ -40,6 +41,11 @@ describe("m.postgrest.paginationVM", function(){
       });
     });
 
+    it("should add count=exact header", function(){
+      var lastRequest = jasmine.Ajax.requests.mostRecent();
+      expect(lastRequest.requestHeaders.Prefer).toEqual(header.Prefer);
+    });
+
     describe("#collection", function() {
       it("should be initialized with a getter returning an empty array", function(){
         expect(vm.collection()).toBeEmptyArray();
@@ -65,12 +71,12 @@ describe("m.postgrest.paginationVM", function(){
       it("should call the getPage without incrementing the page number and only with default order if no parameters are passed", function(){
         vm.firstPage({id: 'eq.0'});
         vm.firstPage();
-        expect(model.getPage).toHaveBeenCalledWith({order: 'id.desc'}, 1, {background: true, extract: jasmine.any(Function)});
+        expect(model.getPage).toHaveBeenCalledWith({order: 'id.desc'}, 1, {background: true, extract: jasmine.any(Function)}, header);
       });
 
       it("should call the getPage without incrementing the page number and with filters passed as parameters", function(){
         vm.firstPage({id: 'eq.0'});
-        expect(model.getPage).toHaveBeenCalledWith({id: 'eq.0', order: 'id.desc'}, 1, {background: true, extract: jasmine.any(Function)});
+        expect(model.getPage).toHaveBeenCalledWith({id: 'eq.0', order: 'id.desc'}, 1, {background: true, extract: jasmine.any(Function)}, header);
       });
     });
 
@@ -81,7 +87,7 @@ describe("m.postgrest.paginationVM", function(){
 
       it("should call the getPage incrementing the page number and with default filters", function(){
         vm.nextPage();
-        expect(model.getPage).toHaveBeenCalledWith({order: 'id.desc'}, 2, {background: true, extract: jasmine.any(Function)});
+        expect(model.getPage).toHaveBeenCalledWith({order: 'id.desc'}, 2, {background: true, extract: jasmine.any(Function)}, header);
       });
     });
   });

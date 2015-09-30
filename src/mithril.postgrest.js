@@ -24,7 +24,11 @@
     };
   },
 
-  addRepresentationHeader = addHeaders({'Prefer': 'return=representation'});
+  addConfigHeaders = (headers, options) => {
+    return _.extend({}, options, {config: mergeConfig(addHeaders(headers), options)});
+  },
+
+  representationHeader = {'Prefer': 'return=representation'};
 
   postgrest.token = token;
 
@@ -72,21 +76,18 @@
     };
 
     postgrest.requestWithToken = (options) => {
-      const addAuthorizationHeader = () => {
-        return mergeConfig(addHeaders({'Authorization': 'Bearer ' + token()}), options);
-      };
       return m.postgrest.authenticate().then(
         () => {
-          return m.postgrest.request(_.extend({}, options, {config: addAuthorizationHeader()}));
+          return m.postgrest.request(addConfigHeaders({'Authorization': 'Bearer ' + token()}, options));
         },
         () => {
-          return m.postgrest.request(_.extend({}, options));
+          return m.postgrest.request(options);
         }
       );
     };
 
     postgrest.model = (name) => {
-      const addPaginationHeaders = (page, pageSize) => {
+      const paginationHeaders = (page, pageSize) => {
         if (!pageSize) {
           return;
         }
@@ -97,15 +98,16 @@
           return from + '-' + to;
         };
 
-        return addHeaders({'Range-unit': 'items', 'Range': toRange()});
+        return {'Range-unit': 'items', 'Range': toRange()};
       },
 
       pageSize = m.prop(10),
 
       nameOptions = {url: '/' + name},
 
-      getOptions = (data, page, pageSize, options) => {
-        return _.extend({}, options, nameOptions, {method: 'GET', data: data, config: mergeConfig(addPaginationHeaders(page, pageSize), options)});
+      getOptions = (data, page, pageSize, options, headers = {}) => {
+        const extraHeaders = _.extend({}, {'Prefer': 'count=none'}, headers, paginationHeaders(page, pageSize));
+        return addConfigHeaders(extraHeaders, _.extend({}, options, nameOptions, {method: 'GET', data: data}));
       },
 
       querystring = (filters, options) => {
@@ -117,36 +119,46 @@
         return m.postgrest.request(_.extend({}, options, nameOptions, {method: 'OPTIONS'}));
       },
 
-      postOptions = (attributes, options) => {
-        return _.extend(
-          {},
-          options,
-          nameOptions,
-          {method: 'POST', data: attributes, config: mergeConfig(addRepresentationHeader, options)}
-        );
-      },
-
-      deleteOptions = (filters, options) => {
-        return querystring(filters, _.extend({}, options, nameOptions, {method: 'DELETE'}));
-      },
-
-      patchOptions = (filters, attributes, options) => {
-        return querystring(
-          filters,
+      postOptions = (attributes, options, headers = {}) => {
+        const extraHeaders = _.extend({}, representationHeader, headers);
+        return addConfigHeaders(
+          extraHeaders,
           _.extend(
             {},
             options,
             nameOptions,
-            {method: 'PATCH', data: attributes, config: mergeConfig(addRepresentationHeader, options)})
+            {method: 'POST', data: attributes}
+          )
         );
       },
 
-      getPageOptions = (data, page, options) => {
-        return getOptions(data, (page || 1), pageSize(), options);
+      deleteOptions = (filters, options, headers = {}) => {
+        const extraHeaders = addHeaders(_.extend({}, headers));
+        return querystring(filters, addConfigHeaders(extraHeaders, _.extend({}, options, nameOptions, {method: 'DELETE'})));
       },
 
-      getRowOptions = (data, options) => {
-        return getOptions(data, 1, 1, options);
+      patchOptions = (filters, attributes, options, headers = {}) => {
+        const extraHeaders = addHeaders(_.extend({}, representationHeader, headers));
+        return querystring(
+          filters,
+          addConfigHeaders(
+            extraHeaders,
+            _.extend(
+              {},
+              options,
+              nameOptions,
+              {method: 'PATCH', data: attributes}
+            )
+          )
+        );
+      },
+
+      getPageOptions = (data, page, options, headers = {}) => {
+        return getOptions(data, (page || 1), pageSize(), options, headers);
+      },
+
+      getRowOptions = (data, options, headers = {}) => {
+        return getOptions(data, 1, 1, options, headers);
       };
 
       return {

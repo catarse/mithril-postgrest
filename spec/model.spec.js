@@ -52,7 +52,7 @@ describe("m.postgrest.model", function(){
     });
 
     it("should call m.postgrest.requestWithToken with model name", function() {
-      expect(m.postgrest.requestWithToken).toHaveBeenCalledWith({method: "DELETE", url: "/foo?id=eq.1"});
+      expect(m.postgrest.requestWithToken).toHaveBeenCalledWith({method: "DELETE", url: "/foo?id=eq.1", config: jasmine.any(Function)});
     });
   });
 
@@ -74,6 +74,8 @@ describe("m.postgrest.model", function(){
         options.config(xhr);
         expect(xhr.setRequestHeader).toHaveBeenCalledWith('Range-unit', 'items');
         expect(xhr.setRequestHeader).toHaveBeenCalledWith('Range', '0-9');
+        // Default behaviour is to not have the count
+        expect(xhr.setRequestHeader).toHaveBeenCalledWith('Prefer', 'count=none');
       };
       spyOn(m.postgrest, "request").and.callFake(fakeRequest);
       spyOn(m.postgrest, "requestWithToken").and.callFake(fakeRequest);
