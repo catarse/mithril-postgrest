@@ -58,7 +58,13 @@ describe("m.postgrest.model", function(){
 
   describe("patch and patchWithToken", function(){
     beforeEach(function(){
-      spyOn(m.postgrest, "requestWithToken");
+      var fakeRequest = function(options){
+        options.config(xhr);
+        // Default behaviour is to return representation
+        expect(xhr.setRequestHeader).toHaveBeenCalledWith('Prefer', 'return=representation');
+      };
+      spyOn(m.postgrest, "requestWithToken").and.callFake(fakeRequest);
+
       model = m.postgrest.model('foo');
       model.patchWithToken({id: 'eq.1'}, {bar: 'qux'});
     });

@@ -138,7 +138,7 @@
       },
 
       patchOptions = (filters, attributes, options, headers = {}) => {
-        const extraHeaders = addHeaders(_.extend({}, representationHeader, headers));
+        const extraHeaders = _.extend({}, representationHeader, headers);
         return querystring(
           filters,
           addConfigHeaders(
