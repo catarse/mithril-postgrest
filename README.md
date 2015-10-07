@@ -107,13 +107,16 @@ Another View-Model very convenient is one that can paginate a model and fetch pa
 To create such an object you can call:
 
 ```javasctipt
- * paginationVM(loadPageFunction) - Generate a pagination View-Model that loads pages using the loadPageFunction (should be a mithril request)
+ var paginator = paginationVM(model, order, authenticate)
+
 ```
+This would generate a pagination View-Model that loads pages using the given model, applying the order to the request.
+The third parameter is a boolean to choose between a getPage (passing false) or getPageWithToken (passing true, this is the default).
 
 This can be used with the model and filters defined above like:
 
 ```javascript
-var userPages = m.postgrest.paginationVM(users.getPageWithToken);
+var userPages = m.postgrest.paginationVM(users);
 // The firstPage function returns a mithril promise
 userPages.firstPage(filters.parameters()).then(function(){
   // Results are in collection
