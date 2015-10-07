@@ -7,14 +7,15 @@
     factory(window.m, window._);
   }
 }(function(m, _) {
-  m.postgrest.paginationVM = (pageRequest, order) => {
+  m.postgrest.paginationVM = (model, order, authenticate = true) => {
     let collection = m.prop([]),
-      rangeHeaderRgx = new RegExp("/(\d+)-(\d+)?\/?(\d+)/gi"),
+      rangeHeaderRgx = new RegExp("(\d+)-(\d+)?\/?(\d+)"),
       defaultOrder = order || 'id.desc',
       filters = m.prop({order: defaultOrder}),
       isLoading = m.prop(false),
       page = m.prop(1),
-      pageSize = m.prop(10),
+      resultsCount = m.prop(10),
+      pageRequest = authenticate ? model.getPageWithToken : model.getPage,
       total = m.prop();
 
     const fetch = () => {
@@ -27,9 +28,8 @@
         if (_.isString(rangeHeader)){
           let matches = rangeHeaderRgx.exec(rangeHeader);
 
-          console.log(matches);
           total(parseInt(matches[2]));
-          pageSize((parseInt(matches[0]) -  parseInt(matches[1])));
+          resultsCount((parseInt(matches[0]) -  parseInt(matches[1])));
         }
         try {
           JSON.parse(xhr.responseText);
@@ -63,7 +63,7 @@
     },
 
     isLastPage = () => {
-      return (page() * pageSize() >= total());
+      return (page() * model.pageSize() >= total());
     },
 
     nextPage = () => {

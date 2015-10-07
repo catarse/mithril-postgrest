@@ -11,7 +11,7 @@ describe("m.postgrest.paginationVM", function(){
 
   describe("when fetch fails", function(){
     beforeEach(function(){
-      vm = m.postgrest.paginationVM(model.getPage);
+      vm = m.postgrest.paginationVM(model, null, false);
       jasmine.Ajax.stubRequest(/foo.*/).andReturn({
         'status' : 401,
         'responseText' : 'Invalid user'
@@ -35,7 +35,7 @@ describe("m.postgrest.paginationVM", function(){
   describe("when fetch is successful", function(){
     beforeEach(function(){
       spyOn(model, "getPage").and.callThrough();
-      vm = m.postgrest.paginationVM(model.getPage);
+      vm = m.postgrest.paginationVM(model, null, false);
       jasmine.Ajax.stubRequest(/foo.*/).andReturn({
         'responseText' : '["items"]',
       });
