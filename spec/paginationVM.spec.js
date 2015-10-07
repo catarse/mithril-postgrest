@@ -11,9 +11,9 @@ describe("m.postgrest.paginationVM", function(){
 
   describe("when fetch fails", function(){
     beforeEach(function(){
-      vm = m.postgrest.paginationVM(model.getPage);
+      vm = m.postgrest.paginationVM(model, null, false);
       jasmine.Ajax.stubRequest(/foo.*/).andReturn({
-        'status' : 401, 
+        'status' : 401,
         'responseText' : 'Invalid user'
       });
     });
@@ -35,9 +35,9 @@ describe("m.postgrest.paginationVM", function(){
   describe("when fetch is successful", function(){
     beforeEach(function(){
       spyOn(model, "getPage").and.callThrough();
-      vm = m.postgrest.paginationVM(model.getPage);
+      vm = m.postgrest.paginationVM(model, null, false);
       jasmine.Ajax.stubRequest(/foo.*/).andReturn({
-        'responseText' : '["items"]'
+        'responseText' : '["items"]',
       });
     });
 
@@ -65,6 +65,7 @@ describe("m.postgrest.paginationVM", function(){
 
     describe("#firstPage", function() {
       it("should be a function", function(){
+        var lastRequest = jasmine.Ajax.requests.mostRecent();
         expect(vm.firstPage).toBeFunction();
       });
 
@@ -77,6 +78,17 @@ describe("m.postgrest.paginationVM", function(){
       it("should call the getPage without incrementing the page number and with filters passed as parameters", function(){
         vm.firstPage({id: 'eq.0'});
         expect(model.getPage).toHaveBeenCalledWith({id: 'eq.0', order: 'id.desc'}, 1, {background: true, extract: jasmine.any(Function)}, header);
+      });
+    });
+
+    describe("#isLastPage", function() {
+      it("should be a function", function() {
+        expect(vm.isLastPage).toBeFunction();
+      });
+
+      it("should return false when  is not the last page", function() {
+        vm.firstPage();
+        expect(vm.isLastPage()).toEqual(false);
       });
     });
 

@@ -7,12 +7,15 @@
     factory(window.m, window._);
   }
 }(function(m, _) {
-  m.postgrest.paginationVM = (pageRequest, order) => {
+  m.postgrest.paginationVM = (model, order, authenticate = true) => {
     let collection = m.prop([]),
+      rangeHeaderRgx = new RegExp("(\d+)-(\d+)?\/?(\d+)"),
       defaultOrder = order || 'id.desc',
       filters = m.prop({order: defaultOrder}),
       isLoading = m.prop(false),
       page = m.prop(1),
+      resultsCount = m.prop(10),
+      pageRequest = authenticate ? model.getPageWithToken : model.getPage,
       total = m.prop();
 
     const fetch = () => {
@@ -22,8 +25,11 @@
           return JSON.stringify({hint: null, details: null, code: 0, message: 'Connection error'});
         }
         let rangeHeader = xhr.getResponseHeader('Content-Range');
-        if (_.isString(rangeHeader) && rangeHeader.split('/').length > 1){
-          total(parseInt(rangeHeader.split('/')[1]));
+        if (_.isString(rangeHeader)){
+          let matches = rangeHeaderRgx.exec(rangeHeader);
+
+          total(parseInt(matches[2]));
+          resultsCount((parseInt(matches[0]) -  parseInt(matches[1])));
         }
         try {
           JSON.parse(xhr.responseText);
@@ -56,6 +62,10 @@
       return fetch();
     },
 
+    isLastPage = () => {
+      return (page() * model.pageSize() >= total());
+    },
+
     nextPage = () => {
       page(page() + 1);
       return fetch();
@@ -66,6 +76,7 @@
       firstPage: firstPage,
       isLoading: isLoading,
       nextPage: nextPage,
+      isLastPage: isLastPage,
       total: total
     };
   };
