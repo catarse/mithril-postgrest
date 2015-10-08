@@ -13,7 +13,7 @@
       filters = m.prop({order: defaultOrder}),
       isLoading = m.prop(false),
       page = m.prop(1),
-      resultsCount = m.prop(10),
+      resultsCount = m.prop(),
       pageRequest = authenticate ? model.getPageWithToken : model.getPage,
       total = m.prop();
 
@@ -29,7 +29,7 @@
               [from, to] = size.split('-');
 
           total(parseInt(count));
-          resultsCount((parseInt(from) -  parseInt(to)));
+          resultsCount((parseInt(to) - parseInt(from) + 1));
         }
         try {
           JSON.parse(xhr.responseText);
@@ -77,7 +77,8 @@
       isLoading: isLoading,
       nextPage: nextPage,
       isLastPage: isLastPage,
-      total: total
+      total: total,
+      resultsCount: resultsCount
     };
   };
 

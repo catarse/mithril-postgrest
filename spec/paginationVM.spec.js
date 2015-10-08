@@ -82,11 +82,25 @@ describe("m.postgrest.paginationVM", function(){
     });
 
     describe("#isLastPage", function() {
-      it("should be a function", function() {
-        expect(vm.isLastPage).toBeFunction();
+      const mockRequest = (range) => {
+        jasmine.Ajax.stubRequest(/foo.*/).andReturn({
+          responseHeaders: [{name: 'Content-Range', value: range}],
+          responseText : '["items"]'
+        });
+      };
+
+      beforeEach(function(){
+        vm = m.postgrest.paginationVM(model, null, false);
       });
 
-      it("should return false when  is not the last page", function() {
+      it("should return true when is the last page", function() {
+        mockRequest('0-1/2');
+        vm.firstPage();
+        expect(vm.isLastPage()).toEqual(true);
+      });
+
+      it("should return false when is not the last page", function() {
+        mockRequest('0-1/11');
         vm.firstPage();
         expect(vm.isLastPage()).toEqual(false);
       });
