@@ -9,7 +9,6 @@
 }(function(m, _) {
   m.postgrest.paginationVM = (model, order, authenticate = true) => {
     let collection = m.prop([]),
-      rangeHeaderRgx = new RegExp("(\d+)-(\d+)?\/?(\d+)"),
       defaultOrder = order || 'id.desc',
       filters = m.prop({order: defaultOrder}),
       isLoading = m.prop(false),
@@ -26,10 +25,11 @@
         }
         let rangeHeader = xhr.getResponseHeader('Content-Range');
         if (_.isString(rangeHeader)){
-          let matches = rangeHeaderRgx.exec(rangeHeader);
+          let [size, count] = rangeHeader.split('/'),
+              [from, to] = size.split('-');
 
-          total(parseInt(matches[2]));
-          resultsCount((parseInt(matches[0]) -  parseInt(matches[1])));
+          total(parseInt(count));
+          resultsCount((parseInt(from) -  parseInt(to)));
         }
         try {
           JSON.parse(xhr.responseText);
