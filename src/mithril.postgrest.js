@@ -67,7 +67,7 @@
         deferred.resolve({token: token()});
       }
       else {
-        m.request(authenticationOptions).then((data) => {
+        m.request(_.extend({}, authenticationOptions)).then((data) => {
           token(data.token);
           deferred.resolve({token: token()});
         }, (data) => { deferred.reject(data); });
