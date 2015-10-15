@@ -37,15 +37,14 @@
     loader.load = () => {
       loader(true);
       m.redraw();
-      m.startComputation();
       requestFunction(_.extend({}, options, {background: true})).then((data) => {
         loader(false);
         d.resolve(data);
-        m.endComputation();
+        m.redraw();
       }, (error) => {
         loader(false);
         d.reject(error);
-        m.endComputation();
+        m.redraw();
       });
       return d.promise;
     };
