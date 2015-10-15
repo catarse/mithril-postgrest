@@ -40,7 +40,6 @@
       requestFunction(_.extend({}, options, {background: true})).then((data) => {
         loader(false);
         d.resolve(data);
-        console.log('new redraw strategy');
         m.redraw();
       }, (error) => {
         loader(false);
