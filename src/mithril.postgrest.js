@@ -64,7 +64,20 @@
 
     postgrest.init = (apiPrefix, authenticationOptions) => {
         postgrest.request = (options) => {
-            return m.request(_.extend({}, options, {
+            const errorHandler = (xhr) => {
+                try {
+                    JSON.parse(xhr.responseText);
+                    return xhr.responseText;
+                } catch (ex) {
+                    return JSON.stringify({
+                        hint: null,
+                        details: null,
+                        code: 0,
+                        message: xhr.responseText
+                    });
+                }
+            };
+            return m.request(_.extend({extract: errorHandler}, options, {
                 url: apiPrefix + options.url
             }));
         };
