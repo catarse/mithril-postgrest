@@ -72,6 +72,8 @@
                                 if (getter.lte()) {
                                     memo[attr].push('lte.' + getter.lte.toFilter());
                                 }
+                            } else if (operator === 'is.null') {
+                                memo[attr] = getter.toFilter() === null ? 'is.null' : 'not.is.null';
                             } else {
                                 memo[attr] = operator + '.' + getter.toFilter();
                             }
