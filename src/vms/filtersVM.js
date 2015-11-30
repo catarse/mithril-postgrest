@@ -40,7 +40,7 @@
                     }
                     return memo;
                 }, {
-                    order: m.prop()
+                    order: filter()
                 }
             ),
 

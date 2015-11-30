@@ -34,6 +34,11 @@ describe("m.postgrest.filtersVM", function(){
     expect(vm.parameters()).toEqual({id: 'eq.7', name: 'ilike.*foo*', order: 'name.asc,id.desc', value: ['gte.1', 'lte.2'], full_text: '@@.foo&bar&qux', deactivated_at: 'not.is.null'});
   });
 
+  it("the chain function should build an object for the request using PostgREST syntax", function() {
+    var chain = vm.id(7).name('foo').value.gte(1).value.lte(2).full_text(' foo  bar qux ').deactivated_at(!null).order({name: 'asc', id: 'desc'}).parameters();
+    expect(chain).toEqual({id: 'eq.7', name: 'ilike.*foo*', order: 'name.asc,id.desc', value: ['gte.1', 'lte.2'], full_text: '@@.foo&bar&qux', deactivated_at: 'not.is.null'});
+  });
+
   it("should use custom .toFilter to get value from filter getters", function() {
     vm.name('foo');
     vm.name.toFilter = function(){
