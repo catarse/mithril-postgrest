@@ -100,7 +100,7 @@ describe("m.postgrest.paginationVM", function(){
       });
 
       it("should return false when is not the last page", function() {
-        mockRequest('0-1/11');
+        mockRequest('0-9/11');
         vm.firstPage();
         expect(vm.isLastPage()).toEqual(false);
       });

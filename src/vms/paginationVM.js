@@ -79,7 +79,7 @@
               },
 
               isLastPage = () => {
-                  return (page() * model.pageSize() >= total());
+                  return (resultsCount() && model.pageSize() > resultsCount());
               },
 
               nextPage = () => {
