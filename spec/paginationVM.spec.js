@@ -81,6 +81,31 @@ describe("m.postgrest.paginationVM", function(){
             });
         });
 
+        describe("#total", function() {
+            const mockRequest = (range) => {
+                jasmine.Ajax.stubRequest(/foo.*/).andReturn({
+                    responseHeaders: [{name: 'Content-Range', value: range}],
+                    responseText : '["items"]'
+                });
+            };
+
+            beforeEach(function(){
+                vm = m.postgrest.paginationVM(model, null, false);
+            });
+
+            it("should return number when total is present", function() {
+                mockRequest('0-1/2');
+                vm.firstPage();
+                expect(vm.total()).toEqual(2);
+            });
+
+            it("should return NaN when total is not a number", function() {
+                mockRequest('0-1/*');
+                vm.firstPage();
+                expect(vm.total()).toEqual(NaN);
+            });
+        });
+
         describe("#isLastPage", function() {
             const mockRequest = (range) => {
                 jasmine.Ajax.stubRequest(/foo.*/).andReturn({
