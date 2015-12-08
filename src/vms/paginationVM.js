@@ -7,7 +7,7 @@
         factory(window.m, window._);
     }
 }(function(m, _) {
-    m.postgrest.paginationVM = (model, order, authenticate = true) => {
+    m.postgrest.paginationVM = (model, order, extraHeaders = {}, authenticate = true) => {
         let collection = m.prop([]),
             defaultOrder = order || 'id.desc',
             filters = m.prop({
@@ -53,9 +53,7 @@
             pageRequest(filters(), page(), {
                 background: true,
                 extract: getTotal
-            }, {
-                'Prefer': 'count=exact'
-            }).then((data) => {
+            }, extraHeaders).then((data) => {
                 collection(_.union(collection(), data));
                 isLoading(false);
                 d.resolve(collection());
