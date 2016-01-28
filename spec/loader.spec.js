@@ -9,7 +9,7 @@ describe("m.postgrest.loader", function(){
       expect(vm()).toEqual(true);
       return {then: then};
     });
-    vm = m.postgrest.loader({}, m.request);
+    vm = m.postgrest.loader({});
   });
 
   it("should create vm as a getter/setter", function() {

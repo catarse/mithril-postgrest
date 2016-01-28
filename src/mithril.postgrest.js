@@ -30,37 +30,33 @@
               });
           },
 
+          createLoader = (requestFunction, options, defaultState = false) => {
+              const loader = m.prop(defaultState),
+                    d = m.deferred();
+              loader.load = () => {
+                  loader(true);
+                  m.redraw();
+                  requestFunction(_.extend({}, options, {
+                      background: true
+                  })).then((data) => {
+                      loader(false);
+                      d.resolve(data);
+                      m.redraw();
+                  }, (error) => {
+                      loader(false);
+                      d.reject(error);
+                      m.redraw();
+                  });
+                  return d.promise;
+              };
+              return loader;
+          },
+
           representationHeader = {
               'Prefer': 'return=representation'
           };
 
     postgrest.token = token;
-
-    postgrest.loader = (options, requestFunction, defaultState = false) => {
-        const loader = m.prop(defaultState),
-              d = m.deferred();
-        loader.load = () => {
-            loader(true);
-            m.redraw();
-            requestFunction(_.extend({}, options, {
-                background: true
-            })).then((data) => {
-                loader(false);
-                d.resolve(data);
-                m.redraw();
-            }, (error) => {
-                loader(false);
-                d.reject(error);
-                m.redraw();
-            });
-            return d.promise;
-        };
-        return loader;
-    };
-
-    postgrest.loaderWithToken = (options, defaultState) => {
-        return postgrest.loader(options, postgrest.requestWithToken, defaultState);
-    };
 
     postgrest.init = (apiPrefix, authenticationOptions) => {
         postgrest.request = (options) => {
@@ -112,6 +108,10 @@
                 }
             );
         };
+
+        postgrest.loader = _.partial(createLoader, postgrest.request);
+
+        postgrest.loaderWithToken = _.partial(createLoader, postgrest.requestWithToken);
 
         postgrest.model = (name) => {
             const paginationHeaders = (page, pageSize) => {
