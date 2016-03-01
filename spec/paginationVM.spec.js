@@ -124,6 +124,12 @@ describe("m.postgrest.paginationVM", function(){
                 expect(vm.isLastPage()).toEqual(true);
             });
 
+            it("should return true when empty", function() {
+                mockRequest('*/*');
+                vm.firstPage();
+                expect(vm.isLastPage()).toEqual(true);
+            });
+
             it("should return false when is not the last page", function() {
                 mockRequest('0-9/11');
                 vm.firstPage();
