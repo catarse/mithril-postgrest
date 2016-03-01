@@ -32,10 +32,13 @@
                 }
                 let rangeHeader = xhr.getResponseHeader('Content-Range');
                 if (_.isString(rangeHeader)) {
-                    let [size, count] = rangeHeader.split('/'), [from, to] = size.split('-');
+                    let [headerSize, headerCount] = rangeHeader.split('/'),
+                        [headerFrom, headerTo] = headerSize.split('-'),
+                        to = parseInt(headerTo) + 1 || 0,
+                        from = parseInt(headerFrom)  || 0;
 
-                    total(parseInt(count));
-                    resultsCount((parseInt(to) - parseInt(from) + 1));
+                    total(parseInt(headerCount));
+                    resultsCount(to - from);
                 }
                 try {
                     JSON.parse(xhr.responseText);
@@ -67,23 +70,23 @@
             return d.promise;
         },
 
-              firstPage = (parameters) => {
-                  filters(_.extend({
-                      order: defaultOrder
-                  }, parameters));
-                  collection([]);
-                  page(1);
-                  return fetch();
-              },
+        firstPage = (parameters) => {
+            filters(_.extend({
+                order: defaultOrder
+            }, parameters));
+            collection([]);
+            page(1);
+            return fetch();
+        },
 
-              isLastPage = () => {
-                  return (resultsCount() && model.pageSize() > resultsCount());
-              },
+        isLastPage = () => {
+            return (model.pageSize() > resultsCount());
+        },
 
-              nextPage = () => {
-                  page(page() + 1);
-                  return fetch();
-              };
+        nextPage = () => {
+            page(page() + 1);
+            return fetch();
+        };
 
         return {
             collection: collection,
