@@ -25,7 +25,7 @@ module.exports = function(config) {
       'src/vms/*.js',
       'spec/**/*.spec.js'
     ],
-    
+
     // list of files to exclude
     exclude: [
     ],
@@ -75,7 +75,7 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['PhantomJS'],
+    browsers: ['NodeWebkit'],
 
 
     // Continuous Integration mode

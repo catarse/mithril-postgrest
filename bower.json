@@ -22,7 +22,7 @@
     "tests"
   ],
   "dependencies": {
-    "mithril": "0.2.0",
+    "mithril": "0.2.4",
     "underscore": "~1.8.3"
   }
 }
