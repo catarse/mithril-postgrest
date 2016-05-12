@@ -1,10 +1,13 @@
 {
-  "name": "mithril.postgrest",
+  "name": "mithril-postgrest",
   "version": "1.8.1",
   "author": "Diogo Biazus",
   "description": "A Mithril.js plugin to authenticate requests against PostgREST",
+  "main": "mithril-postgrest.umd.js",
   "devDependencies": {
+    "babel-preset-es2015-rollup": "^1.1.1",
     "gulp": "^3.9.0",
+    "gulp-clean": "^0.3.2",
     "gulp-concat": "^2.6.0",
     "gulp-jscs": "^2.0.0",
     "gulp-jshint": "^1.11.2",
@@ -13,6 +16,7 @@
     "gulp-sourcemaps": "^1.5.2",
     "gulp-uglify": "^1.4.0",
     "gulp-util": "^3.0.6",
+    "jasmine-core": "^2.4.1",
     "jasmine-expect": "^2.0.0-beta1",
     "jshint-stylish": "^2.0.1",
     "karma": "^0.13.9",
@@ -21,6 +25,11 @@
     "karma-phantomjs-launcher": "^0.2.1",
     "karma-spec-reporter": "0.0.20",
     "phantomjs": "^1.9.18",
+    "rollup-plugin-babel": "^2.4.0",
+    "rollup-plugin-multi-entry": "^1.2.0",
+    "rollup-stream": "^1.5.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
     "yargs": "^3.24.0"
   },
   "scripts": {

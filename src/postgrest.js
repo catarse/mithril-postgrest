@@ -1,7 +1,7 @@
 import m from 'mithril';
 import _ from 'underscore';
-import filtersVM from 'vms/filtersVM';
-import paginationVM from 'vms/paginationVM';
+import filtersVM from './vms/filtersVM';
+import paginationVM from './vms/paginationVM';
 
 let postgrest = {};
 
@@ -94,13 +94,13 @@ postgrest.init = (apiPrefix, authenticationOptions) => {
     };
 
     postgrest.requestWithToken = (options) => {
-        return m.postgrest.authenticate().then(
+        return postgrest.authenticate().then(
             () => {
-                return m.postgrest.request(addConfigHeaders({
+                return postgrest.request(addConfigHeaders({
                     'Authorization': 'Bearer ' + token()
                 }, options));
             }, () => {
-                return m.postgrest.request(options);
+                return postgrest.request(options);
             }
         );
     };
@@ -149,7 +149,7 @@ postgrest.init = (apiPrefix, authenticationOptions) => {
               },
 
               options = (options) => {
-                  return m.postgrest.request(_.extend({}, options, nameOptions, {
+                  return postgrest.request(_.extend({}, options, nameOptions, {
                       method: 'OPTIONS'
                   }));
               },
@@ -223,5 +223,8 @@ postgrest.init = (apiPrefix, authenticationOptions) => {
 
     return postgrest;
 };
+
+postgrest.filtersVM = filtersVM;
+postgrest.paginationVM = paginationVM;
 
 export default postgrest;

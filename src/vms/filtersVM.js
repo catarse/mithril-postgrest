@@ -5,7 +5,7 @@ const filtersVM = (attributes) => {
     let newVM = {},
         filter = () => {
             const prop = m.prop(''),
-                filterProp = (value) => {
+                filterProp = function (value) {
                     if (arguments.length > 0) {
                         prop(value);
                         return newVM;
