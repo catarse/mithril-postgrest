@@ -1,4 +1,6 @@
-describe("m.postgrest.loader", function(){
+import postgrest from '../src/postgrest';
+
+export default describe("postgrest.loader", function(){
   var vm = null;
 
   beforeEach(function(){
@@ -9,7 +11,7 @@ describe("m.postgrest.loader", function(){
       expect(vm()).toEqual(true);
       return {then: then};
     });
-    vm = m.postgrest.loader({});
+    vm = postgrest.loader({});
   });
 
   it("should create vm as a getter/setter", function() {

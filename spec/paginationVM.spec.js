@@ -1,17 +1,19 @@
-describe("m.postgrest.paginationVM", function(){
+import postgrest from '../src/postgrest';
+
+export default describe("postgrest.paginationVM", function(){
     var vm = null;
     var apiPrefix = "http://api.foo.com/v1";
     var model = null;
     var header = {'Prefer': 'count=exact'};
 
     beforeEach(function(){
-        m.postgrest.init(apiPrefix);
-        model = m.postgrest.model('foo');
+        postgrest.init(apiPrefix);
+        model = postgrest.model('foo');
     });
 
     describe("when fetch fails", function(){
         beforeEach(function(){
-            vm = m.postgrest.paginationVM(model, null, header, false);
+            vm = postgrest.paginationVM(model, null, header, false);
             jasmine.Ajax.stubRequest(/foo.*/).andReturn({
                 'status' : 401,
                 'responseText' : 'Invalid user'
@@ -35,7 +37,7 @@ describe("m.postgrest.paginationVM", function(){
     describe("when fetch is successful", function(){
         beforeEach(function(){
             spyOn(model, "getPage").and.callThrough();
-            vm = m.postgrest.paginationVM(model, null, header, false);
+            vm = postgrest.paginationVM(model, null, header, false);
             jasmine.Ajax.stubRequest(/foo.*/).andReturn({
                 'responseText' : '["items"]',
             });
@@ -90,7 +92,7 @@ describe("m.postgrest.paginationVM", function(){
             };
 
             beforeEach(function(){
-                vm = m.postgrest.paginationVM(model, null, header, false);
+                vm = postgrest.paginationVM(model, null, header, false);
             });
 
             it("should return number when total is present", function() {
@@ -115,7 +117,7 @@ describe("m.postgrest.paginationVM", function(){
             };
 
             beforeEach(function(){
-                vm = m.postgrest.paginationVM(model, null, header, false);
+                vm = postgrest.paginationVM(model, null, header, false);
             });
 
             it("should return true when is the last page", function() {
@@ -149,5 +151,3 @@ describe("m.postgrest.paginationVM", function(){
         });
     });
 });
-
-

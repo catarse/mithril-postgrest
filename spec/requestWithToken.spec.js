@@ -1,17 +1,19 @@
-describe("m.postgrest.requestWithToken", function(){
-  var apiPrefix = "http://api.foo.com/v1/", token = "authentication token", 
+import postgrest from '../src/postgrest';
+
+export default describe("postgrest.requestWithToken", function(){
+  var apiPrefix = "http://api.foo.com/v1/", token = "authentication token",
     authentication_endpoint = "/authentication_endpoint", lastRequest;
 
   beforeEach(function(){
-    m.postgrest.token(token);
-    m.postgrest.init(apiPrefix, {method: "GET", url: authentication_endpoint});
-    spyOn(m.postgrest, 'authenticate').and.callThrough();
+    postgrest.token(token);
+    postgrest.init(apiPrefix, {method: "GET", url: authentication_endpoint});
+    spyOn(postgrest, 'authenticate').and.callThrough();
     spyOn(m, 'request').and.callThrough();
   });
 
   it("should call authenticate", function(){
-    m.postgrest.requestWithToken({method: "GET", url: "pages.json"});
-    expect(m.postgrest.authenticate).toHaveBeenCalled();
+    postgrest.requestWithToken({method: "GET", url: "pages.json"});
+    expect(postgrest.authenticate).toHaveBeenCalled();
   });
 
   describe("when token is undefined and authentication succeeds", function(){
@@ -20,10 +22,10 @@ describe("m.postgrest.requestWithToken", function(){
         'responseText' : JSON.stringify({token: token}),
         status: 200
       });
-      m.postgrest.token(undefined);
-      m.postgrest.requestWithToken({method: "GET", url: "pages.json"});
+      postgrest.token(undefined);
+      postgrest.requestWithToken({method: "GET", url: "pages.json"});
       lastRequest = jasmine.Ajax.requests.mostRecent();
-      expect(m.postgrest.authenticate).toHaveBeenCalled();
+      expect(postgrest.authenticate).toHaveBeenCalled();
       expect(lastRequest.url).toEqual(apiPrefix + 'pages.json');
       expect(lastRequest.requestHeaders.Authorization).toEqual('Bearer ' + token);
     });
@@ -35,10 +37,10 @@ describe("m.postgrest.requestWithToken", function(){
         'responseText' : JSON.stringify({}),
         status: 500
       });
-      m.postgrest.token(undefined);
-      m.postgrest.requestWithToken({method: "GET", url: "pages.json"});
+      postgrest.token(undefined);
+      postgrest.requestWithToken({method: "GET", url: "pages.json"});
       lastRequest = jasmine.Ajax.requests.mostRecent();
-      expect(m.postgrest.authenticate).toHaveBeenCalled();
+      expect(postgrest.authenticate).toHaveBeenCalled();
       expect(lastRequest.url).toEqual(apiPrefix + 'pages.json');
       expect(lastRequest.requestHeaders.Authorization).toEqual(undefined);
     });
@@ -49,8 +51,8 @@ describe("m.postgrest.requestWithToken", function(){
       var xhrConfig = function(xhr) {
         xhr.setRequestHeader("Content-Type", "application/json");
       };
-      
-      m.postgrest.requestWithToken({method: "GET", url: "pages.json", config: xhrConfig});
+
+      postgrest.requestWithToken({method: "GET", url: "pages.json", config: xhrConfig});
       lastRequest = jasmine.Ajax.requests.mostRecent();
     });
 
@@ -64,4 +66,3 @@ describe("m.postgrest.requestWithToken", function(){
   });
 
 });
-
