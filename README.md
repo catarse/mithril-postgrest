@@ -2,36 +2,36 @@
 
 ## Use cases
 What this library is supposed to do:
-  
+
   * Help you authenticating in a [PostgREST](https://github.com/begriffs/postgrest) server.
   * Provide wrappers arround the mithril request function to use JWT.
   * Provide a constructor for objects that will interact with PostgREST endpoints
   * Provide some helpers to build some useful View-Model objects.
-  
+
 ## Usage
 First we should init the library so that it will build the functions to access the API.
-The init function takes one argument which is the API endpoint prefix, 
-containing the URI to which all addresses will be appended. 
+The init function takes one argument which is the API endpoint prefix,
+containing the URI to which all addresses will be appended.
 If the API is being served from exactly the same location as the page running the JS
 you can just initialize without any argument.
 
 To use an API available at ```http://api.foo.com/v1``` you can use the code:
 ```javascript
-m.postgrest.init(
-  "http://api.foo.com/v1", 
+postgrest.init(
+  "http://api.foo.com/v1",
   {method: "GET", url: "/authentication_endpoint"}
 );
 ```
 
 This will create three functions:
 
-  * m.postgrest.request - which should be used for anonymous API calls.
-  * m.postgrest.requestWithToken - which should be used for authenticated API calls.
-  * m.postgrest.model - creates an object that abstracts an API endpoint
+  * postgrest.request - which should be used for anonymous API calls.
+  * postgrest.requestWithToken - which should be used for authenticated API calls.
+  * postgrest.model - creates an object that abstracts an API endpoint
 
 Both request functions are just proxies for mithril's ```m.request``` and will return in the same fashion.
 
-However, the ```m.postgrest.requestWithToken``` stores the JWT for api authentication in a public getter: ```m.postgrest.token```.
+However, the ```postgrest.requestWithToken``` stores the JWT for api authentication in a public getter: ```postgrest.token```.
 
 This token can be manipulated to implement session storage for the authentication token.
 
@@ -40,27 +40,27 @@ To generate a model you should call the model function passing its name. The nam
 
 For example, the following code:
 ```javascript
-var users = m.postgrest.model('users');
+var users = postgrest.model('users');
 ```
 
 will generate an object with functions to operate the ```/users``` endpoint.
 To get one record from the users table you could use:
 ```javascript
-var users = m.postgrest.model('users');
+var users = postgrest.model('users');
 users.getRow({id: 'eq.1'}).then(function(row){
 	console.log('fecthed:', row);
 });
 ```
 Now if you don't want to fetch data as anonymous, and prefer to use your authentication token:
 ```javascript
-var users = m.postgrest.model('users');
+var users = postgrest.model('users');
 users.getRowWithToken({id: 'eq.1'}).then(function(row){
 	console.log('fecthed:', row);
 });
 ```
 When updating, the model always fetches the updated record by default:
 ```javascript
-var users = m.postgrest.model('users');
+var users = postgrest.model('users');
 users.patchWithToken({id: 'eq.1'}, {name: 'new name'}).then(function(row){
 	console.log('updated:', row);
 });
@@ -68,7 +68,7 @@ users.patchWithToken({id: 'eq.1'}, {name: 'new name'}).then(function(row){
 
 The model will have the following property once it is created:
 
- * pageSize - defines the size of each page that comes in ```getPage``` call. Default is 10. 
+ * pageSize - defines the size of each page that comes in ```getPage``` call. Default is 10.
 
 ### View-Models
 There are some commom View-Model objects that can be generated automaticaly.
@@ -82,14 +82,14 @@ You can use the function:
 As in the example:
 
 ```javascript
-var filters = m.postgrest.filtersVM({id: 'eq'});
-var users = m.postgrest.model('users');
+var filters = postgrest.filtersVM({id: 'eq'});
+var users = postgrest.model('users');
 users.getPage(filters.id(7).parameters()).then(function(data){
 	console.log('fetched:', data);
 });
 ```
 
-The ```filters.parameters()``` will return an object that can be fed directly to a request with filters and the order by. 
+The ```filters.parameters()``` will return an object that can be fed directly to a request with filters and the order by.
 
 If you want to apply any transformation to the value before it being fed to the ```parameters()``` function you have a ```toFilter``` function
 that has been created in each property for you. So let's say we want to remove diacriticts from the name before sending the string:
@@ -116,12 +116,12 @@ The third parameter is a boolean to choose between a getPage (passing false) or 
 This can be used with the model and filters defined above like:
 
 ```javascript
-var userPages = m.postgrest.paginationVM(users);
+var userPages = postgrest.paginationVM(users);
 // The firstPage function returns a mithril promise
 userPages.firstPage(filters.parameters()).then(function(){
   // Results are in collection
   console.log(userPages.collection());
-}, 
+},
 function(){
     alert('Error loading users');
 });
@@ -134,7 +134,7 @@ After the first call to ```.firstPage``` the parameters are stored for use in ne
 userPages.nextPage().then(function(){
   // Results are appended to collection
   console.log(userPages.collection());
-}, 
+},
 function(){
     alert('Error loading next page');
 });
