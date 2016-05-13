@@ -29,26 +29,6 @@ module.exports = function(config) {
     exclude: [
     ],
 
-
-    // preprocess matching files before serving them to the browser
-    // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    // preprocessors: {
-    //   'spec/**/*.spec.js': ['babel'],
-    //   'src/**/*.js': ['babel']
-    // },
-    // babelPreprocessor: {
-    //   options: {
-    //     sourceMap: 'inline'
-    //   },
-    //   filename: function(file) {
-    //     return file.originalPath.replace(/\.js$/, '.es5.js');
-    //   },
-    //   sourceFileName: function(file) {
-    //     return file.originalPath;
-    //   }
-    // },
-
-
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
