@@ -1,8 +1,10 @@
-describe("m.postgrest.filtersVM", function(){
+import postgrest from '../src/postgrest';
+
+export default describe("postgrest.filtersVM", function(){
   var vm = null;
 
   beforeEach(function(){
-    vm = m.postgrest.filtersVM({id: 'eq', name: 'ilike', value: 'between', full_text: '@@', deactivated_at: 'is.null'});
+    vm = postgrest.filtersVM({id: 'eq', name: 'ilike', value: 'between', full_text: '@@', deactivated_at: 'is.null'});
   });
 
   it("should have a getter for each attribute plus one for order", function() {
@@ -74,4 +76,3 @@ describe("m.postgrest.filtersVM", function(){
     expect(vm.parameters()).toEqual({});
   });
 });
-
