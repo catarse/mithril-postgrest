@@ -3,4 +3,5 @@ machine:
       version: 6.1.0
 dependencies:
   post:
+    - npm install -g bower
     - bower install
