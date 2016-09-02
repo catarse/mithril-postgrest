@@ -36,6 +36,7 @@
     "test": "gulp test"
   },
   "dependencies": {
+    "babel-preset-es2015": "^6.14.0",
     "gulp-babel": "^5.2.1",
     "gulp-flowtype": "^0.4.8",
     "karma-babel-preprocessor": "^5.2.2",
