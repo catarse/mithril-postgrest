@@ -1,4 +1,4 @@
-#mithril.postgrest [![Circle CI](https://circleci.com/gh/catarse/mithril.postgrest/tree/master.svg?style=svg)](https://circleci.com/gh/catarse/mithril.postgrest/tree/master) [![Code Climate](https://codeclimate.com/github/catarse/mithril.postgrest/badges/gpa.svg)](https://codeclimate.com/github/catarse/mithril.postgrest)
+#mithril-postgrest [![Circle CI](https://circleci.com/gh/catarse/mithril-postgrest/tree/master.svg?style=svg)](https://circleci.com/gh/catarse/mithril-postgrest/tree/master) [![Code Climate](https://codeclimate.com/github/catarse/mithril-postgrest/badges/gpa.svg)](https://codeclimate.com/github/catarse/mithril-postgrest)
 
 ## Use cases
 What this library is supposed to do:
