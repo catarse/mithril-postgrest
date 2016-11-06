@@ -6,4 +6,4 @@ languages:
 exclude_paths:
 - "dist/*.js"
 - "*.umd.js"
-- "spec/lib/**/*.js"
+- "spec/**/*.js"
