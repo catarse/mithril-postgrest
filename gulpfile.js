@@ -10,7 +10,7 @@ var uglify = require('gulp-uglify');
 var plumber = require('gulp-plumber');
 var Server = require('karma').Server;
 var flow = require('gulp-flowtype');
-var multiEntry = require('rollup-plugin-multi-entry').default;
+var multiEntry = require('rollup-plugin-multi-entry');
 var babel = require('rollup-plugin-babel');
 var rollup = require('rollup-stream');
 var buffer = require('vinyl-buffer');
@@ -37,18 +37,16 @@ gulp.task('typecheck', function() {
 
 gulp.task('bundle-tests', function(done){
      rollup({
-       entry: ['spec/**/*.spec.js', 'src/**/*.js'],
-       sourceMap: true,
+       input: ['spec/**/*.spec.js', 'src/**/*.js'],
+       sourcemap: true,
        format: 'iife',
-       moduleName: 'postgrestSpecs',
-       plugins: [babel({
-           exclude: 'node_modules/**',
-           "presets": [ "es2015-rollup" ]
-       }), multiEntry()],
+       name: 'postgrestSpecs',
        globals: {
            underscore: '_',
            mithril: 'm'
-       }
+       },
+       plugins: [babel(), multiEntry()],
+       external: ['underscore', 'mithril']
      })
      .pipe(source('spec/**/*.spec.js', 'src/**/*.js'))
      .pipe(buffer())
@@ -79,20 +77,18 @@ gulp.task('lint', function(){
 
 gulp.task('dist-sources', function(done){
     rollup({
-        entry: 'src/postgrest.js',
+        input: 'src/postgrest.js',
         format: 'iife',
-        moduleName: 'postgrest',
-        sourceMap: true,
+        name: 'Postgrest',
+        sourcemap: true,
         plugins: [
-            babel({
-              exclude: 'node_modules/**',
-              "presets": [ "es2015-rollup" ]
-            })
+          babel()
         ],
         globals: {
             underscore: '_',
             mithril: 'm'
-        }
+        },
+        external: ['mithril', 'underscore']
     })
     .pipe(source('src/**/*.js'))
     .pipe(buffer())
@@ -108,16 +104,19 @@ gulp.task('dist-sources', function(done){
 
 gulp.task('bundle-sources', function(done){
     rollup({
-      entry: 'src/postgrest.js',
-      dest: 'mithril-postgrest.js',
+      input: 'src/postgrest.js',
       plugins: [
-          babel({
-              exclude: 'node_modules/**',
-              "presets": [ "es2015-rollup" ]
-          })
+          babel()
       ],
+      output: {
+          file: 'mithril-postgrest.js',
+      },
       format: 'umd',
-      moduleName: 'postgrest'
+      name: 'Postgrest',
+      globals: {
+          underscore: '_',
+          mithril: 'm'
+      }
     })
     .pipe(source('src/**/*.js'))
     .pipe(buffer())

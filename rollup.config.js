@@ -1,9 +1,16 @@
 import babel from 'rollup-plugin-babel';
 
 export default {
-  entry: 'src/postgrest.js',
-  dest: 'mithril-postgrest.js',
+  input: 'src/postgrest.js',
+  output: {
+    file: 'mithril-postgrest.umd.js',
+    format: 'umd'
+  },
   plugins: [ babel() ],
-  format: 'umd',
-  moduleName: 'postgrest'
+  name: 'Postgrest',
+  external: ['mithril', 'underscore'],
+  globals: {
+    mithril: 'm',
+    underscore: '_'
+  }
 };
