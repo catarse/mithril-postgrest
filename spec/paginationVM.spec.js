@@ -1,12 +1,21 @@
-import postgrest from '../src/postgrest';
+import Postgrest from '../src/postgrest';
+import m from 'mithril';
 
 export default describe("postgrest.paginationVM", function(){
+    var postgrest;
     var vm = null;
     var apiPrefix = "http://api.foo.com/v1";
     var model = null;
     var header = {'Prefer': 'count=exact'};
+    var error = {
+      hint: null,
+      details: null,
+      code: 0,
+      message: 'Invalid user'
+    };
 
     beforeEach(function(){
+        postgrest = new Postgrest();
         postgrest.init(apiPrefix);
         model = postgrest.model('foo');
     });
@@ -14,10 +23,7 @@ export default describe("postgrest.paginationVM", function(){
     describe("when fetch fails", function(){
         beforeEach(function(){
             vm = postgrest.paginationVM(model, null, header, false);
-            jasmine.Ajax.stubRequest(/foo.*/).andReturn({
-                'status' : 401,
-                'responseText' : 'Invalid user'
-            });
+            jasmine.Ajax.stubRequest(/foo.*/).andReturn({responseText: JSON.stringify(error)});
         });
 
         it("should be initialized with a getter returning an empty array", function(){
@@ -29,7 +35,7 @@ export default describe("postgrest.paginationVM", function(){
             vm.nextPage().then(null, function(e){
                 error = e;
             });
-            expect(error).toEqual({hint: null, details: null, code: 0, message: 'Invalid user'});
+            expect(error).toEqual(error);
             expect(vm.collection()).toEqual([]);
         });
     });

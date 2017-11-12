@@ -1,7 +1,10 @@
-import postgrest from '../src/postgrest';
+import Postgrest from '../src/postgrest';
+import m from 'mithril';
 
 export default describe("postgrest.loader", function(){
   var vm = null;
+  var postgrest = new Postgrest();
+  postgrest.init(apiPrefix);
 
   beforeEach(function(){
     var then = function(callback){
@@ -20,11 +23,9 @@ export default describe("postgrest.loader", function(){
     expect(vm()).toEqual(true);
   });
 
-
   it("should update loader state to true before resolving request", function() {
     vm(false);
     vm.load();
     expect(vm()).toEqual(false);
   });
-
 });

@@ -1,6 +1,8 @@
-import postgrest from '../src/postgrest';
+import Postgrest from '../src/postgrest';
+import m from 'mithril';
 
 export default describe("postgrest.model", function(){
+  var postgrest = new Postgrest();
   var apiPrefix = "http://api.foo.com/v1/",
   token = "authentication token",
   authentication_endpoint = "/authentication_endpoint",

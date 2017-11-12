@@ -1,4 +1,5 @@
-import postgrest from '../src/postgrest';
+import Postgrest from '../src/postgrest';
+import m from 'mithril';
 
 export default describe("postgrest.requestWithToken callbacks order", function(){
   var apiPrefix = "http://api.foo.com/v1/",
@@ -7,6 +8,7 @@ export default describe("postgrest.requestWithToken callbacks order", function()
       requestResult = 'request result',
       authenticateTime = 10,
       requestTime = 5;
+  var postgrest = new Postgrest();
 
   beforeEach(function(){
     postgrest.init(apiPrefix, {method: "GET", url: authentication_endpoint});

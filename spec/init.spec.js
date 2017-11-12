@@ -1,7 +1,9 @@
-import postgrest from '../src/postgrest';
+import Postgrest from '../src/postgrest';
+import m from 'mithril';
 
 export default describe("postgrest.init & postgrest.request", function(){
-    var apiPrefix = "http://api.foo.com/v1/";
+   var postgrest = new Postgrest();
+   var apiPrefix = "http://api.foo.com/v1/";
 
     beforeEach(function(){
         postgrest.init(apiPrefix);
