@@ -1,7 +1,9 @@
-import postgrest from '../src/postgrest';
+import Postgrest from '../src/postgrest';
+import m from 'mithril';
 
 export default describe("postgrest.filtersVM", function(){
-  var vm = null;
+ var postgrest = new Postgrest();
+ var vm = null;
 
   beforeEach(function(){
     vm = postgrest.filtersVM({id: 'eq', name: 'ilike', value: 'between', full_text: '@@', deactivated_at: 'is.null'});

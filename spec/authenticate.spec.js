@@ -1,9 +1,13 @@
-import postgrest from '../src/postgrest';
+import Postgrest from '../src/postgrest';
+import m from 'mithril';
+
+console.log(JSON.stringify(Postgrest));
 
 export default describe("postgrest.authenticate", function(){
   var token = "authentication token";
   var authentication_endpoint = "/authentication_endpoint";
-
+  var postgrest = new Postgrest();
+  
   beforeEach(function(){
     postgrest.token(undefined);
     jasmine.Ajax.stubRequest(authentication_endpoint).andReturn({
