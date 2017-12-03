@@ -12,6 +12,6 @@ export default describe("postgrest.init & postgrest.request", function(){
 
     it("should append api prefix used on init to request url", function(){
         postgrest.request({method: "GET", url: "pages.json"});
-        expect(m.request).toHaveBeenCalledWith({method: "GET", url: apiPrefix + "pages.json", extract: jasmine.any(Function)});
+        expect(m.request).toHaveBeenCalledWith({method: "GET", url: apiPrefix + "pages.json", extract: jasmine.any(Function), config: jasmine.any(Function)});
     });
 });

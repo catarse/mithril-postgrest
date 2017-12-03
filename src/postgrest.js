@@ -55,7 +55,7 @@ function Postgrest () {
 
     postgrest.token = token;
 
-    postgrest.init = (apiPrefix, authenticationOptions) => {
+    postgrest.init = (apiPrefix, authenticationOptions, globalHeader = {}) => {
         postgrest.request = (options) => {
             const errorHandler = (xhr) => {
                 try {
@@ -70,9 +70,13 @@ function Postgrest () {
                     });
                 }
             };
-            return m.request(_.extend({extract: errorHandler}, options, {
-                url: apiPrefix + options.url
-            }));
+            return m.request(
+                addConfigHeaders(globalHeader,
+                    _.extend({extract: errorHandler}, options, {
+                        url: apiPrefix + options.url
+                    })
+                )
+            );
         };
 
         postgrest.authenticate = () => {
