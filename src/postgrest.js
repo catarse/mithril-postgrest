@@ -174,7 +174,7 @@ function Postgrest () {
                   },
 
                   deleteOptions = (filters, options, headers = {}) => {
-                      const extraHeaders = addHeaders(_.extend({}, headers));
+                      const extraHeaders = _.extend({}, representationHeader, headers);
                       return querystring(filters, addConfigHeaders(extraHeaders, _.extend({}, options, nameOptions, {
                           method: 'DELETE'
                       })));
