@@ -79,21 +79,28 @@ function Postgrest () {
             );
         };
 
-        postgrest.authenticate = () => {
-            const deferred = m.deferred();
+        const authenticationRequested = m.prop(false);
+        postgrest.authenticate = (delegatedDeferred) => {
+            const deferred = delegatedDeferred || m.deferred();
             if (token()) {
                 deferred.resolve({
                     token: token()
                 });
-            } else {
+            } else if (!authenticationRequested()) {
+                authenticationRequested(true);
+
                 m.request(_.extend({}, authenticationOptions)).then((data) => {
+                    authenticationRequested(false);
                     token(data.token);
                     deferred.resolve({
                         token: token()
                     });
-                }, (data) => {
+                }).catch((data) => {
+                    authenticationRequested(false);
                     deferred.reject(data);
                 });
+            } else {
+                setTimeout(() => postgrest.authenticate(deferred), 250);
             }
             return deferred.promise;
         };
