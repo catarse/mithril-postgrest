@@ -40,7 +40,7 @@
     "gulp-babel": "^5.2.1",
     "gulp-flowtype": "^0.4.8",
     "karma-babel-preprocessor": "^5.2.2",
-    "mithril": "^0.2.4",
+    "mithril": "^1.1.6",
     "underscore": "^1.8.3"
   }
 }

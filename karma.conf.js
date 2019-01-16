@@ -12,13 +12,13 @@ module.exports = function(config) {
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['jasmine'],
 
-
     // list of files / patterns to load in the browser
     files: [
       'spec/lib/jasmine-species/jasmine-grammar.js',
       'spec/lib/jasmine-ajax/mock-ajax.js',
       'spec/lib/matchers.js',
       'node_modules/underscore/underscore.js',
+      'node_modules/mithril/stream/stream.js',
       'node_modules/mithril/mithril.js',
       'node_modules/jasmine-expect/dist/jasmine-matchers.js',
       'spec/lib/mocks/*mock.js',
@@ -60,6 +60,6 @@ module.exports = function(config) {
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
-    singleRun: true
+    singleRun: false
   })
 }

@@ -43,10 +43,11 @@ gulp.task('bundle-tests', function(done){
        name: 'postgrestSpecs',
        globals: {
            underscore: '_',
-           mithril: 'm'
+           mithril: 'm',
+           'mithril/stream': 'prop'
        },
        plugins: [babel(), multiEntry()],
-       external: ['underscore', 'mithril']
+       external: ['underscore', 'mithril', 'mithril/stream']
      })
      .pipe(source('spec/**/*.spec.js', 'src/**/*.js'))
      .pipe(buffer())
@@ -86,9 +87,10 @@ gulp.task('dist-sources', function(done){
         ],
         globals: {
             underscore: '_',
-            mithril: 'm'
+            mithril: 'm',
+            'mithril/stream': 'prop'
         },
-        external: ['mithril', 'underscore']
+        external: ['mithril', 'underscore', 'mithril/stream']
     })
     .pipe(source('src/**/*.js'))
     .pipe(buffer())
@@ -115,7 +117,8 @@ gulp.task('bundle-sources', function(done){
       name: 'Postgrest',
       globals: {
           underscore: '_',
-          mithril: 'm'
+          mithril: 'm',
+          'mithril/stream': 'prop'
       }
     })
     .pipe(source('src/**/*.js'))
@@ -136,3 +139,4 @@ gulp.task('watch', function(){
 gulp.task('default', ['watch']);
 gulp.task('test', ['bundle-tests', 'run-tests', 'clean-tests']);
 gulp.task('build', ['lint', 'test', 'dist-sources', 'bundle-sources']);
+gulp.task('build-only', ['dist-sources', 'bundle-sources']);
