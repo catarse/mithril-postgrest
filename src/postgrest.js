@@ -4,6 +4,24 @@ import _ from 'underscore';
 import filtersVM from './vms/filtersVM';
 import paginationVM from './vms/paginationVM';
 
+let shouldScheduleRedraw = 0;
+
+function scheduleRedraw() {
+    shouldScheduleRedraw++;
+}
+
+function StartRequestListener() {
+
+    if (shouldScheduleRedraw > 0) {
+        m.redraw();
+        shouldScheduleRedraw = Math.max(0, --shouldScheduleRedraw);
+    }
+
+    requestAnimationFrame(StartRequestListener);
+}
+
+StartRequestListener(); 
+
 function Postgrest() {
     let postgrest = {};
     const token = prop(),
@@ -21,7 +39,7 @@ function Postgrest() {
             };
         },
 
-        addConfigHeaders = (headers, options) => {
+        addConfigHeaders = (headers, options) => {                        
             return _.extend({}, options, {
                 config: mergeConfig(addHeaders(headers), options)
             });
@@ -30,25 +48,21 @@ function Postgrest() {
         createLoader = (requestFunction, options, defaultState = false) => {
             const loader = prop(defaultState);
             loader.load = () => {
+                
                 return new Promise((resolve, reject) => {
                     loader(true);
-                    m.redraw();
+                    scheduleRedraw();
                     requestFunction(_.extend({}, options, {
                         background: true
                     })).then((data) => {
                         loader(false);
-                        
-                        console.log(`downloaded data: ${JSON.stringify(options)}`, data, data.length);
-
                         resolve(data);
-                        m.redraw();
-                        console.log('enqueued redraw');
+                        scheduleRedraw();
                     })
                     .catch(error => {
-                        console.log('error downloading from:', options, error);
                         loader(false);
                         reject(error);
-                        m.redraw();
+                        scheduleRedraw();
                     });
                 });
             };

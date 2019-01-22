@@ -36,9 +36,9 @@ const paginationVM = (model, order, extraHeaders = {}, authenticate = true) => {
                     total(parseInt(headerCount));
                     resultsCount(to - from);
                 }
+
                 try {
-                    JSON.parse(xhr.responseText);
-                    return xhr.responseText;
+                    return JSON.parse(xhr.responseText);
                 } catch (ex) {
                     return JSON.stringify({
                         hint: null,
@@ -50,14 +50,16 @@ const paginationVM = (model, order, extraHeaders = {}, authenticate = true) => {
             };
             isLoading(true);
             pageRequest(filters(), page(), {
-                background: true,
+                background: false,
                 extract: getTotal
-            }, extraHeaders).then((data) => {
+            }, extraHeaders)
+            .then((data) => {
                 collection(_.union(collection(), data));
                 isLoading(false);
                 resolve(collection());
                 m.redraw();
-            }, (error) => {
+            })
+            .catch((error) => {
                 isLoading(false);
                 total(0);
                 reject(error);
