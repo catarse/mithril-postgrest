@@ -1,28 +1,10 @@
-import m from 'mithril';
 import prop from 'mithril/stream';
 import _ from 'underscore';
 import filtersVM from './vms/filtersVM';
 import paginationVM from './vms/paginationVM';
 
-let shouldScheduleRedraw = 0;
-
-function scheduleRedraw() {
-    shouldScheduleRedraw++;
-}
-
-function StartRequestListener() {
-
-    if (shouldScheduleRedraw > 0) {
-        m.redraw();
-        shouldScheduleRedraw = Math.max(0, --shouldScheduleRedraw);
-    }
-
-    requestAnimationFrame(StartRequestListener);
-}
-
-StartRequestListener(); 
-
-function Postgrest() {
+function Postgrest(mithrilInstance) {
+    const m = mithrilInstance;
     let postgrest = {};
     const token = prop(),
 
@@ -51,18 +33,15 @@ function Postgrest() {
                 
                 return new Promise((resolve, reject) => {
                     loader(true);
-                    scheduleRedraw();
                     requestFunction(_.extend({}, options, {
-                        background: true
+                        background: false
                     })).then((data) => {
                         loader(false);
                         resolve(data);
-                        scheduleRedraw();
                     })
                     .catch(error => {
                         loader(false);
                         reject(error);
-                        scheduleRedraw();
                     });
                 });
             };
@@ -255,7 +234,7 @@ function Postgrest() {
     };
 
     postgrest.filtersVM = filtersVM;
-    postgrest.paginationVM = paginationVM;
+    postgrest.paginationVM = paginationVM(mithrilInstance);
 
     return postgrest;
 }

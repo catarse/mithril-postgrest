@@ -1,4 +1,3 @@
-import m from 'mithril';
 import prop from 'mithril/stream';
 import _ from 'underscore';
 
