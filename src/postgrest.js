@@ -153,7 +153,7 @@ function Postgrest(mithrilInstance) {
                 },
 
                 querystring = (filters, options) => {
-                    options.url += '?' + m.route.buildQueryString(filters);
+                    options.url += '?' + m.buildQueryString(filters);
                     return options;
                 },
 
