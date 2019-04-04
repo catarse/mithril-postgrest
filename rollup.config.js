@@ -8,10 +8,9 @@ export default {
   },
   plugins: [ babel() ],
   name: 'Postgrest',
-  external: ['mithril', 'underscore', 'mithril/stream'],
+  external: ['mithril', 'underscore'],
   globals: {
     mithril: 'm',
-    'mithril/stream': 'prop',
     underscore: '_'
   }
 };

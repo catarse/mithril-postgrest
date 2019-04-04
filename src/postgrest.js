@@ -2,9 +2,16 @@ import prop from 'mithril/stream';
 import _ from 'underscore';
 import filtersVM from './vms/filtersVM';
 import paginationVM from './vms/paginationVM';
+import mithril from 'mithril';
 
+/**
+ * This takes the mithril instance that will handle redraw 
+ * on occurence of a dom element event or some m.request
+ * call.
+ * @param {Mithril} mithrilInstance 
+ */
 function Postgrest(mithrilInstance) {
-    const m = mithrilInstance;
+    const m = mithrilInstance || mithril;
     let postgrest = {};
     const token = prop(),
 
@@ -21,7 +28,7 @@ function Postgrest(mithrilInstance) {
             };
         },
 
-        addConfigHeaders = (headers, options) => {                        
+        addConfigHeaders = (headers, options) => {   
             return _.extend({}, options, {
                 config: mergeConfig(addHeaders(headers), options)
             });

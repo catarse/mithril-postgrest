@@ -3,7 +3,7 @@ import m from 'mithril';
 
 export default describe("postgrest.loader", function(){
   var vm = null;
-  var postgrest = new Postgrest();
+  var postgrest = new Postgrest(m);
   postgrest.init(apiPrefix);
 
   beforeEach(function(){
