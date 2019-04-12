@@ -8,28 +8,31 @@ export default describe("postgrest.requestWithToken callbacks order", function()
       requestResult = 'request result',
       authenticateTime = 10,
       requestTime = 5;
-  var postgrest = new Postgrest();
+  var postgrest = new Postgrest(m);
 
   beforeEach(function(){
     postgrest.init(apiPrefix, {method: "GET", url: authentication_endpoint});
 
     spyOn(postgrest, 'authenticate').and.callFake(function(){
-      var deferred = m.deferred();
-      setTimeout(function(){
-        localStorage.setItem("postgrest.token", token);
-        deferred.resolve({token: token});
-      }, authenticateTime);
-      return deferred.promise;
+      var deferred = new Promise((resolve, reject) => {
+        setTimeout(function(){
+          localStorage.setItem("postgrest.token", token);
+          resolve({token: token});
+        }, authenticateTime);
+      });
+      return deferred;
     });
 
     spyOn(postgrest, 'request').and.callFake(function(options){
       // Ensure that the token was set before we call the request
       expect(localStorage.getItem("postgrest.token")).toEqual(token);
-      var deferred = m.deferred();
-      setTimeout(function(){
-        deferred.resolve(requestResult);
-      }, requestTime);
-      return deferred.promise;
+      var deferred = new Promise((resolve, reject) => {
+        setTimeout(function(){
+          resolve(requestResult);
+        }, requestTime);
+      });
+        
+      return deferred;
     });
   });
 

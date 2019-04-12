@@ -4,7 +4,7 @@ import m from 'mithril';
 export default describe("postgrest.requestWithToken", function(){
   var apiPrefix = "http://api.foo.com/v1/", token = "authentication token",
     authentication_endpoint = "/authentication_endpoint", lastRequest;
-  var postgrest = new Postgrest();
+  var postgrest = new Postgrest(m);
 
   beforeEach(function(){
     postgrest.token(token);
@@ -25,11 +25,14 @@ export default describe("postgrest.requestWithToken", function(){
         status: 200
       });
       postgrest.token(undefined);
-      postgrest.requestWithToken({method: "GET", url: "pages.json"});
-      lastRequest = jasmine.Ajax.requests.mostRecent();
-      expect(postgrest.authenticate).toHaveBeenCalled();
-      expect(lastRequest.url).toEqual(apiPrefix + 'pages.json');
-      expect(lastRequest.requestHeaders.Authorization).toEqual('Bearer ' + token);
+      postgrest
+        .requestWithToken({method: "GET", url: "pages.json"})
+        .then(() => {
+          lastRequest = jasmine.Ajax.requests.mostRecent();
+          expect(postgrest.authenticate).toHaveBeenCalled();
+          expect(lastRequest.url).toEqual(apiPrefix + 'pages.json');
+          expect(lastRequest.requestHeaders.Authorization).toEqual('Bearer ' + token);
+        });
     });
   });
 
@@ -40,22 +43,29 @@ export default describe("postgrest.requestWithToken", function(){
         status: 500
       });
       postgrest.token(undefined);
-      postgrest.requestWithToken({method: "GET", url: "pages.json"});
-      lastRequest = jasmine.Ajax.requests.mostRecent();
-      expect(postgrest.authenticate).toHaveBeenCalled();
-      expect(lastRequest.url).toEqual(apiPrefix + 'pages.json');
-      expect(lastRequest.requestHeaders.Authorization).toEqual(undefined);
+      postgrest
+        .requestWithToken({method: "GET", url: "pages.json"})
+        .then(() => {
+          lastRequest = jasmine.Ajax.requests.mostRecent();
+          expect(postgrest.authenticate).toHaveBeenCalled();
+          expect(lastRequest.url).toEqual(apiPrefix + 'pages.json');
+          expect(lastRequest.requestHeaders.Authorization).toEqual(undefined);
+        });
     });
   });
 
   describe("when I try to configure a custom header", function(){
-    beforeEach(function(){
+    beforeEach(function(cb){
       var xhrConfig = function(xhr) {
         xhr.setRequestHeader("Content-Type", "application/json");
       };
 
-      postgrest.requestWithToken({method: "GET", url: "pages.json", config: xhrConfig});
-      lastRequest = jasmine.Ajax.requests.mostRecent();
+      postgrest
+        .requestWithToken({method: "GET", url: "pages.json", config: xhrConfig})
+        .then(() => {
+          lastRequest = jasmine.Ajax.requests.mostRecent();
+          cb();
+        });
     });
 
     it("should call m.request and our custom xhrConfig", function(){

@@ -1,16 +1,16 @@
-import m from 'mithril';
+import prop from 'mithril/stream';
 import _ from 'underscore';
 
 const filtersVM = (attributes) => {
     let newVM = {},
         filter = () => {
-            const prop = m.prop(''),
+            const innerProp = prop(''),
                 filterProp = function (value) {
                     if (arguments.length > 0) {
-                        prop(value);
+                        innerProp(value);
                         return newVM;
                     }
-                    return prop();
+                    return innerProp();
                 };
             // Just so we can have a default to_filter and avoid if _.isFunction calls
             filterProp.toFilter = () => {

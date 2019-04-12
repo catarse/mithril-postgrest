@@ -15,7 +15,7 @@ export default describe("postgrest.paginationVM", function(){
     };
 
     beforeEach(function(){
-        postgrest = new Postgrest();
+        postgrest = new Postgrest(m);
         postgrest.init(apiPrefix);
         model = postgrest.model('foo');
     });
@@ -60,8 +60,10 @@ export default describe("postgrest.paginationVM", function(){
             });
 
             it("should receive more itens from the fetched pages", function(){
-                vm.nextPage();
-                expect(vm.collection()).toEqual(['items']);
+                vm.nextPage()
+                    .then(() => {
+                        expect(vm.collection()).toEqual(['items']);
+                    });
             });
         });
 
@@ -79,13 +81,14 @@ export default describe("postgrest.paginationVM", function(){
 
             it("should call the getPage without incrementing the page number and only with default order if no parameters are passed", function(){
                 vm.firstPage({id: 'eq.0'});
-                vm.firstPage();
-                expect(model.getPage).toHaveBeenCalledWith({order: 'id.desc'}, 1, {background: true, extract: jasmine.any(Function)}, header);
+                vm.firstPage().then(() => {
+                    expect(model.getPage).toHaveBeenCalledWith({order: 'id.desc'}, 1, {background: false, extract: jasmine.any(Function)}, header);
+                });
             });
 
             it("should call the getPage without incrementing the page number and with filters passed as parameters", function(){
                 vm.firstPage({id: 'eq.0'});
-                expect(model.getPage).toHaveBeenCalledWith({id: 'eq.0', order: 'id.desc'}, 1, {background: true, extract: jasmine.any(Function)}, header);
+                expect(model.getPage).toHaveBeenCalledWith({id: 'eq.0', order: 'id.desc'}, 1, {background: false, extract: jasmine.any(Function)}, header);
             });
         });
 
@@ -152,7 +155,7 @@ export default describe("postgrest.paginationVM", function(){
 
             it("should call the getPage incrementing the page number and with default filters", function(){
                 vm.nextPage();
-                expect(model.getPage).toHaveBeenCalledWith({order: 'id.desc'}, 2, {background: true, extract: jasmine.any(Function)}, header);
+                expect(model.getPage).toHaveBeenCalledWith({order: 'id.desc'}, 2, {background: false, extract: jasmine.any(Function)}, header);
             });
         });
     });
