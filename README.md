@@ -89,6 +89,17 @@ users.getPage(filters.id(7).parameters()).then(function(data){
 });
 ```
 
+Also use logic operators:
+
+```javascript
+var filters = postgrest.filtersVM({statuses: 'and'});
+filters.statuses({age: {gte: 18}, state: { eq: 'active'}});
+var users = postgrest.model('users');
+users.getPage(filters.id(7).parameters()).then(function(data){
+	console.log('fetched:', data);
+});
+```
+
 The ```filters.parameters()``` will return an object that can be fed directly to a request with filters and the order by.
 
 If you want to apply any transformation to the value before it being fed to the ```parameters()``` function you have a ```toFilter``` function
