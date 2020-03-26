@@ -17,20 +17,24 @@ const filtersVM = (attributes) => {
                 return _.isString(filterProp()) ? filterProp().trim() : filterProp();
             };
 
-            filterProp.objectToLogicOperation = (obj) => {
+            function objectToLogicOperation(obj) {
                 return `(${Object.keys(obj).map(key => {
                     if (key === 'or' || key === 'and') {
-                        return `${key}${filterProp.objectToLogicOperation(obj[key])}`;
+                        return `${key}${objectToLogicOperation(obj[key])}`;
                     } else {
                         return `${Object.keys(obj[key]).map(innerKey => {
                             if (innerKey === 'or' || innerKey === 'and') {
-                                return `${innerKey}${filterProp.objectToLogicOperation(obj[key][innerKey])}`;
+                                return `${innerKey}${objectToLogicOperation(obj[key][innerKey])}`;
                             } else {
                                 return `${key}.${innerKey}.${obj[key][innerKey]}`;
                             }
                         }).join(',')}`;
                     }
                 }).join(',')})`;
+            };
+
+            filterProp.logicOperators = () => {
+                return objectToLogicOperation(filterProp.toFilter());
             };
 
             return filterProp;
@@ -86,7 +90,9 @@ const filtersVM = (attributes) => {
                         } else if (operator === 'is.null') {
                             memo[attr] = getter.toFilter() === null ? 'is.null' : 'not.is.null';
                         } else if (operator === 'or' || operator === 'and') {
-                            memo[operator] = getter.objectToLogicOperation(getter.toFilter());
+                            memo[operator] = getter.logicOperators();
+                        } else if (operator === 'select') {
+                            memo[operator] = getter.toFilter();
                         } else {
                             memo[attr] = operator + '.' + getter.toFilter();
                         }

@@ -6,7 +6,7 @@ export default describe("postgrest.filtersVM", function(){
  var vm = null;
 
   beforeEach(function(){
-    vm = postgrest.filtersVM({id: 'eq', name: 'ilike', value: 'between', or_values: 'or', full_text: '@@', deactivated_at: 'is.null'});
+    vm = postgrest.filtersVM({id: 'eq', name: 'ilike', value: 'between', or_values: 'or', select_value: 'select', full_text: '@@', deactivated_at: 'is.null'});
   });
 
   it("should have a getter for each attribute plus one for order", function() {
@@ -18,6 +18,7 @@ export default describe("postgrest.filtersVM", function(){
     expect(vm.deactivated_at).toBeFunction();
     expect(vm.order).toBeFunction();
     expect(vm.or_values).toBeFunction();
+    expect(vm.select_value).toBeFunction();
   });
 
   it("should have a parameters function", function() {
@@ -55,6 +56,16 @@ export default describe("postgrest.filtersVM", function(){
       }
     });
     expect(vm.parameters()).toEqual({or: '(value1.eq.test,or(value3.eq.2,value4.eq.5))'});
+  });
+
+  it("should use select field", function() {
+    vm.select_value('id,name');
+    expect(vm.parameters()).toEqual({select: 'id,name'});
+  });
+
+  it("should use select fields without modifying it", function() {
+    vm.select_value('id,name,actors(*)&actors.desc=name');
+    expect(vm.parameters()).toEqual({select: 'id,name,actors(*)&actors.desc=name'});
   });
 
   it("should have or and inner or values", function() {
