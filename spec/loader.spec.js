@@ -23,9 +23,9 @@ export default describe("postgrest.loader", function(){
     expect(vm()).toEqual(true);
   });
 
-  it("should update loader state to true before resolving request", function() {
+  it("should update loader state to true before resolving request", async function() {
     vm(false);
     vm.load();
-    expect(vm()).toEqual(false);
+    expect(vm()).toEqual(true);
   });
 });

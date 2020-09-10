@@ -19,7 +19,9 @@ To use an API available at ```http://api.foo.com/v1``` you can use the code:
 ```javascript
 postgrest.init(
   "http://api.foo.com/v1",
-  {method: "GET", url: "/authentication_endpoint"}
+  {method: "GET", url: "/authentication_endpoint"},
+  globalHeaders? : {}, // Headers to be applied to every request
+  isExpired? : (token : string) => Promise<boolean> // Promise that to validate token expiration. In case it's not valid anymore, it makes another request to /authentication_endpoint to retrieve a new token.
 );
 ```
 
@@ -83,6 +85,17 @@ As in the example:
 
 ```javascript
 var filters = postgrest.filtersVM({id: 'eq'});
+var users = postgrest.model('users');
+users.getPage(filters.id(7).parameters()).then(function(data){
+	console.log('fetched:', data);
+});
+```
+
+Also use logic operators:
+
+```javascript
+var filters = postgrest.filtersVM({statuses: 'and'});
+filters.statuses({age: {gte: 18}, state: { eq: 'active'}});
 var users = postgrest.model('users');
 users.getPage(filters.id(7).parameters()).then(function(data){
 	console.log('fetched:', data);

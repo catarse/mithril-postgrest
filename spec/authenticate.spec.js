@@ -16,10 +16,10 @@ export default describe("postgrest.authenticate", function(){
   });
 
   describe("when token is not in localStorage", function(){
-    beforeEach(function(){
+    beforeEach(async function(){
       postgrest.authenticate();
       postgrest.authenticate();
-      postgrest.authenticate();
+      await postgrest.authenticate();
     });
 
     it('should debounce requests', function(){
@@ -49,3 +49,7 @@ export default describe("postgrest.authenticate", function(){
     });
   });
 });
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
