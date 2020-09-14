@@ -2,11 +2,11 @@ import Postgrest from '../src/postgrest';
 import m from 'mithril';
 
 export default describe("postgrest.filtersVM", function(){
- var postgrest = new Postgrest();
- var vm = null;
+  var postgrest = new Postgrest();
+  var vm = null;
 
   beforeEach(function(){
-    vm = postgrest.filtersVM({id: 'eq', name: 'ilike', value: 'between', full_text: '@@', deactivated_at: 'is.null'});
+    vm = postgrest.filtersVM({id: 'eq', name: 'ilike', value: 'between', or_values: 'or', select_value: 'select', full_text: '@@', deactivated_at: 'is.null'});
   });
 
   it("should have a getter for each attribute plus one for order", function() {
@@ -17,6 +17,8 @@ export default describe("postgrest.filtersVM", function(){
     expect(vm.full_text).toBeFunction();
     expect(vm.deactivated_at).toBeFunction();
     expect(vm.order).toBeFunction();
+    expect(vm.or_values).toBeFunction();
+    expect(vm.select_value).toBeFunction();
   });
 
   it("should have a parameters function", function() {
@@ -31,6 +33,65 @@ export default describe("postgrest.filtersVM", function(){
   it("should be able to set filter to false", function() {
     vm.id(false).name('foo');
     expect(vm.parameters()).toEqual({id: 'eq.false', name: 'ilike.*foo*'});
+  });
+
+  it("should have or values", function() {
+    vm.or_values({
+      value1: {
+        eq: 'test'
+      },
+      value2: {
+        gte: 1
+      }
+    });
+    expect(vm.parameters()).toEqual({or: '(value1.eq.test,value2.gte.1)'});
+  });
+
+  it("should have inner or values", function() {
+    vm.or_values({
+      value1: { eq: 'test', },
+      or: {
+        value3: { eq: 2, },
+        value4: { eq: 5, },
+      }
+    });
+    expect(vm.parameters()).toEqual({or: '(value1.eq.test,or(value3.eq.2,value4.eq.5))'});
+  });
+
+  it("should use select field", function() {
+    vm.select_value('id,name');
+    expect(vm.parameters()).toEqual({select: 'id,name'});
+  });
+
+  it("should use select fields without modifying it", function() {
+    vm.select_value('id,name,actors(*)&actors.desc=name');
+    expect(vm.parameters()).toEqual({select: 'id,name,actors(*)&actors.desc=name'});
+  });
+
+  it("should have or and inner or values", function() {
+    vm.or_values({
+      value1: { eq: 'test', },
+      or: {
+        or: {
+          value2: { eq: 'test', },
+        },
+        value3: { eq: 5, },
+      }
+    });
+    expect(vm.parameters()).toEqual({or: '(value1.eq.test,or(or(value2.eq.test),value3.eq.5))'});
+  });
+
+  it("should have or and inner and values", function() {
+    vm.or_values({
+      value1: { eq: 'test', },
+      or: {
+        and: {
+          value2: { eq: 'test', },
+        },
+        value3: { eq: 5, },
+      }
+    });
+    expect(vm.parameters()).toEqual({or: '(value1.eq.test,or(and(value2.eq.test),value3.eq.5))'});
   });
 
   it("the parameters function should build an object for the request using PostgREST syntax", function() {
